@@ -1,1 +1,74 @@
+/* Sweepstakes 0.1 - Carlos Sanz Garcia <carlos.sanz@gmail.com> - http://github.com/not-only-code/sweepstakes */
+
+.form-table.sw tbody {
+	width: 100% !important;
+}
+
+.form-table.sw tr {
+	width: 100% !important;
+}
+
+.form-table.sw th,
+.form-table.sw td { 
+	vertical-align: top;
+	width: auto !important;
+	padding: 5px;
+}
+
+.form-table.sw p.description {
+	font-style: normal;
+	color: #888;
+	margin-bottom: 0;
+	font-size: 1em !important;
+}
+
 #promo-code-table { display: none; }
+
+#promo-code-table.true { display: table; }
+
+input[type="number"] {
+	border-color: #DFDFDF;
+	background-color: white;
+	color: #333;
+	-webkit-border-radius: 3px;
+	border-radius: 3px;
+	border-width: 1px;
+	border-style: solid;
+}
+
+/* KNU Meta Box:  list items styles */
+
+.form-list-container {
+	padding-left: 5px;
+	min-height: 15px
+}
+
+.form-list-container li {
+	display: block;
+	position: relative;
+	float: left;
+	clear: left;
+	padding: 0 0 0 12px;
+	margin: 3px;
+	font-size: 1.1em;
+	margin-left: 0;
+	width: auto;
+	height: auto;
+	overflow: hidden;
+	cursor: move
+}
+
+.form-list-container li span {
+	display: inline-block;
+	width: 8px;
+	position: relative
+}
+
+.form-list-container .ui-state-highlight {
+	min-width: 95% !important;
+	height: 1.5em;
+	line-height: 1.2em;
+	background: #eaeaea;
+	cursor: move
+}
+
