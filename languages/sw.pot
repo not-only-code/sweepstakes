@@ -1,9 +1,9 @@
-# Copyright (C) 2012 qTranslate slug
-# This file is distributed under the same license as the qTranslate slug package.
+# Copyright (C) 2012 Sweepstakes
+# This file is distributed under the same license as the Sweepstakes package.
 msgid ""
 msgstr ""
-"Project-Id-Version: qTranslate slug 1.0\n"
-"Report-Msgid-Bugs-To: http://wordpress.org/tag/qtranslate-slug\n"
+"Project-Id-Version: Sweepstakes 0.1\n"
+"Report-Msgid-Bugs-To: http://wordpress.org/support/plugin/sweepstakes\n"
 "POT-Creation-Date: 2012-05-27 20:27:55+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -12,137 +12,181 @@ msgstr ""
 "Last-Translator: Carlos Sanz Garcia <carlos.sanz@gmail.com>\n"
 "Language-Team: Carlos Sanz Garcia <carlos.sanz@gmail.com>\n"
 
-#: qtranslate-slug.php
-msgid "Language selector"
+# sweepstakes.php
+msgid "Promos"
 msgstr ""
 
-#: qtranslate-slug.php
-msgid "Title:"
+# sweepstakes.php
+msgid "Promo"
 msgstr ""
 
-#: qtranslate-slug.php
-msgid "<p style="color:red">This plugin requires qTranslate to be installed and activated.</p>"
+# sweepstakes.php
+msgid "Add new promo"
 msgstr ""
 
-#: qtranslate-slug.php
-#: qtranslate-slug.php
-#: qtranslate-slug.php
-msgid "Slug"
+# sweepstakes.php
+msgid "Edit"
 msgstr ""
 
-#: qtranslate-slug.php
-msgid "Show short name (en):"
+# sweepstakes.php
+msgid "Edit promo"
 msgstr ""
 
-#: qtranslate-slug-settings-options.php
-msgid "Post types"
+# sweepstakes.php
+msgid "New promo"
 msgstr ""
 
-#: qtranslate-slug-settings-options.php
-msgid "Taxonomies"
+# sweepstakes.php
+msgid "View promo"
 msgstr ""
 
-#: qtranslate-slug-settings-options.php
-msgid "Slug (%s)"
+# sweepstakes.php
+msgid "Search promos"
 msgstr ""
 
-#: qtranslate-slug-settings-options.php
-msgid "<code>http://example.org/<u>%s</u>/some-%s/</code>"
+# sweepstakes.php
+msgid "No promo found"
 msgstr ""
 
-#: qtranslate-slug-settings-options.php
-msgid "<code>http://example.org/<u>category</u>/some-category/</code>"
+# sweepstakes.php
+msgid "No promos in trash"
 msgstr ""
 
-#: qtranslate-slug-settings-options.php
-msgid "<code>http://example.org/<u>tag</u>/some-tag/</code>"
+# sweepstakes.php
+msgid "Parent promo"
 msgstr ""
 
-#: qtranslate-slug-settings-options.php
-msgid "<code>http://example.org/<u>%s</u>/some-%s/</code>"
+# sweepstakes.php
+msgid "Specific content for promos"
 msgstr ""
 
-#: qtranslate-slug-settings.php
-msgid "Qtranslate Slug options"
+# sweepstakes.php
+msgid "Promo code"
 msgstr ""
 
-#: qtranslate-slug-settings.php
-msgid "Slug options"
+# sweepstakes.php
+msgid "Register form"
 msgstr ""
 
-#: qtranslate-slug-settings.php
-msgid "Save Changes"
+# sweepstakes.php
+msgid "Participants / Winners"
 msgstr ""
 
-#: qtranslate-slug-settings.php
-msgid "Expecting a Numeric value! Please fix."
+# sweepstakes.php
+msgid "Activate promo codes series"
 msgstr ""
 
-#: qtranslate-slug-settings.php
-msgid "Expecting comma separated numeric values! Please fix."
+# sweepstakes.php
+msgid "Creates a serial code for this sweepstake"
 msgstr ""
 
-#: qtranslate-slug-settings.php
-msgid "Invalid email"
+# sweepstakes.php
+msgid "code"
 msgstr ""
 
-#: qtranslate-slug-settings.php
-msgid "This setting field cannot be empty! Please enter a valid email address."
+# sweepstakes.php
+msgid "PROMO2012"
 msgstr ""
 
-#: qtranslate-slug-settings.php
-msgid "Please enter a valid email address."
+
+# sweepstakes.php
+msgid "range"
 msgstr ""
 
-#: qtranslate-slug-settings.php
-#: qtranslate-slug-settings.php
-msgid "upgrade now"
+# sweepstakes.php
+msgid "start"
 msgstr ""
 
-#: qtranslate-slug.php
-msgid "Please update your old data to the new system."
+
+# sweepstakes.php
+msgid "end"
 msgstr ""
 
-#: qtranslate-slug-settings.php
-msgid "Upgrade your data"
+# sweepstakes.php
+msgid "For example: 1 - 100000"
 msgstr ""
 
-#: qtranslate-slug-settings.php
-msgid "There are slugs stored with old data system. Please upgrade your data pressing upgrade button:"
+# sweepstakes.php
+msgid "10 digits will create: <code>nUFyPiFdB1</code>"
 msgstr ""
 
-#: qtranslate-slug-settings.php
-msgid "Sorry, some error happened. Refresh this page and try again please."
+# sweepstakes.php
+msgid "Download serie"
 msgstr ""
 
-#: qtranslate-slug-settings.php
-msgid "Congratulations, your data has been upgraded, you are up to date."
+# sweepstakes.php
+msgid "Select witch fields to use in registration form:"
 msgstr ""
 
-#: qtranslate-slug-settings.php
-msgid "One step more, select what type of slug is this: <strong>%s</strong>"
+# sweepstakes.php
+msgid "Add field"
 msgstr ""
 
-#: qtranslate-slug-settings.php
-msgid "Post, Page or Custom post type"
+# sweepstakes.php
+msgid "Or create a new one yourself"
 msgstr ""
 
-#: qtranslate-slug-settings.php
-msgid "Category, tag or custom taxonomy"
+# sweepstakes.php
+msgid "Add and sort the fields you want display in the form, all field will be displayed as text input"
 msgstr ""
 
-#: qtranslate-slug.php
-msgid "This plugin requires at least <strong>Wordpress 3.3</strong> and <strong>Qtranslate(2.5.8 or newer)</strong>"
+# sweepstakes.php
+msgid "Terms page"
 msgstr ""
 
-#: qtranslate-slug-settings.php
-msgid "If you activated previously the <a href=\"/options-permalink.php\">pretty permalinks</a>, in this section you can translate the <abbr title=\"en inglés, Universal Resource Locator\">URLs</abbr> <strong>bases</strong> for <a href=\"http://codex.wordpress.org/Function_Reference/register_post_type#Arguments\">public</a> post_types, categories, tags and taxonomies."
+# sweepstakes.php
+msgid "Without Terms page"
 msgstr ""
 
-#: qtranslate-slug-settings.php
-msgid "For example, the post_type <kbd>books</kbd>, in Spanish would be displayed as <code>http://example.org/es/libros/post-type-name/</code>. If you leave this blank will use the default option when you <a href=\"http://codex.wordpress.org/Function_Reference/register_post_type\">registered</a> the post_type."
+# sweepstakes.php
+msgid "If you define a "Terms" page the customer will be asked to accept it before submit the form."
 msgstr ""
 
-#: qtranslate-slug-settings.php
-msgid "For example, the taxonomy <kbd>category</kbd>, in Spanish would be displayed as <code>http://example.org/es/categoria/taxonomy-name/</code>. If you leave this blank will use the default option when you <a href=\"http://codex.wordpress.org/Function_Reference/register_taxonomy\">registered</a> the taxonomy (if you previously setup a base permastruct for <u>categories</u> or <u>tags</u> in <a href="options-permalink.php">permalinks</a> page, these bases will be overwritten by the translated ones)."
+# sweepstakes.php
+msgid "For example, a draw could have 3 winners, with 3 different lots"
 msgstr ""
+
+# sweepstakes.php
+msgid "Users who have participated in the draw:"
+msgstr ""
+
+# sweepstakes.php
+msgid "no participants yet"
+msgstr ""
+
+# sweepstakes.php
+msgid "Download participants"
+msgstr ""
+
+# sweepstakes.php
+msgid "Winners"
+msgstr ""
+
+# sweepstakes.php
+msgid "no winner/s for now"
+msgstr ""
+
+# sweepstakes.php
+msgid "Random winner/s"
+msgstr ""
+
+# sweepstakes.php
+msgid "Participants"
+msgstr ""
+
+# sweepstakes.php
+msgid "Winner/s"
+msgstr ""
+
+# sweepstakes.php
+msgid "participants"
+msgstr ""
+
+# sweepstakes.php
+msgid "disabled"
+msgstr ""
+
+# sweepstakes.php
+msgid "Number of winners"
+msgstr ""
+
