@@ -8,6 +8,8 @@
 	width: 100% !important;
 }
 
+.form-table.sw tr.hide { display: none; }
+
 .form-table.sw th,
 .form-table.sw td { 
 	vertical-align: top;
@@ -35,8 +37,6 @@ input[type="number"] {
 	border-width: 1px;
 	border-style: solid;
 }
-
-/* KNU Meta Box:  list items styles */
 
 .form-list-container {
 	padding-left: 5px;

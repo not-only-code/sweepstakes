@@ -2,7 +2,7 @@
 
 jQuery(document).ready(function($) {
 	
-	// Debug function
+	// Utils
 	// _______________________________________________________
 	
 	function _debug(msg) {
@@ -100,7 +100,7 @@ jQuery(document).ready(function($) {
 		var _parent = $(this).parent().parent();
 		var _val = _parent.find('input').val();
 		//---
-		$('#promo-form-fields').find('option[value="'+_val+'"]').prop('disabled', false);
+		$('#promo-form-fields').find("option:contains('"+_val+"')").prop('disabled', false);
 		//---
 		_parent.remove();
 		//---
@@ -108,8 +108,32 @@ jQuery(document).ready(function($) {
 		return false;
 	});
 	
+	// Participants: winner
+	// _______________________________________________________
+	
+	var select_winner = $('#promo-select-winner'),
+		user_list = $('#promo-user-list'),
+		winner_num = $('#promo-winner-num').val(),
+		promo_winner_response = function(response) {
+			if (response.status) $('#promo-winner-result').html(response.content);
+			select_winner.prop('disabled', false);
+	};
+	
+	select_winner.bind('click', function(_event){
+		_event.preventDefault();
+		
+		if ($(this).prop('disabled')) return;
+		
+		var package = {
+				'action' : 'set_promo_winner',
+				'nonce' : $('#promo-winner-nonce').val(),
+				'post_id' : $('#post_ID').val()
+			};
+			
+		$.post(ajaxurl, package, promo_winner_response);
+		
+		$(this).prop('disabled', true);
+	});
 	
 	$('.form-list-container').sortable({ placeholder: 'ui-state-highlight'});
-	
-	
 });

@@ -60,10 +60,13 @@ load_plugin_textdomain( 'sw', false, dirname( plugin_basename( __FILE__ ) ) . '/
  *
 **/
 function sw_manage_donwloads() {
+	global $pagenow;
+	
+	if ( !in_array($pagenow, array('edit.php', 'post.php')) ) return;
 	
 	if ( isset($_GET['print_serie']) && !empty($_GET['print_serie']) ):
 		
-		$code = get_post_meta($_GET['print_serie'], SW_PREFIX.'promo_code', true);
+		$code = get_post_meta($_GET['print_serie'], SW_PREFIX.'promo_code', true); // ####### cache this !!!!
 		
 		if ($code && $code['enabled'] === 'true') {
 			
@@ -80,8 +83,8 @@ function sw_manage_donwloads() {
 		
 	elseif ( isset($_GET['download_user_list']) && !empty($_GET['download_user_list']) ):
 		
-		$code = get_post_meta($_GET['download_user_list'], SW_PREFIX .'promo_code', true);
-		$users = get_post_meta($_GET['download_user_list'], SW_PREFIX .'promo_user', false);
+		$code = get_post_meta($_GET['download_user_list'], SW_PREFIX .'promo_code', true); // ####### cache this !!!!
+		$users = get_post_meta($_GET['download_user_list'], SW_PREFIX .'promo_user', false); // ####### cache this !!!!
 		$post_ = get_post($_GET['download_user_list']);
 		
 		if ( $post_ && $users && !empty($users) ) {
@@ -97,7 +100,7 @@ function sw_manage_donwloads() {
 					//printf(__('%s, was recorded for this draw, on %s %s', 'sw') , $user_->display_name, trim($user['date']), $code_);
 					
 					$code_ = ( $code['enabled'] === 'true' && $user['code'] ) ? ' - ' . $user['code'] : '';
-					echo "$user_->display_name - {$user['date']}$code_";
+					echo sw_format_date($user['date'])."h - $user_->display_name$code_" . PHP_EOL;
 					
 				endif;
 			}
@@ -107,7 +110,10 @@ function sw_manage_donwloads() {
 		
 	endif;
 }
-if (is_admin()) add_action('load-post.php', 'sw_manage_donwloads');
+if (is_admin()) {
+	add_action('load-post.php', 'sw_manage_donwloads');
+	add_action('load-edit.php', 'sw_manage_donwloads');
+}
 
 
 
@@ -121,14 +127,14 @@ if (is_admin()) add_action('load-post.php', 'sw_manage_donwloads');
 **/
 function sw_enqueue_scripts() {
 	if (is_admin()) {
-		wp_enqueue_style('sw', plugins_url( 'assets/css/admin-styles.css' , __FILE__ ));
-		wp_enqueue_script('sw', plugins_url( 'assets/js/admin-scripts.js' , __FILE__ ), array('jquery'), null, true);
+		wp_enqueue_style('sw', plugins_url( 'assets/css/admin-styles.css' , __FILE__ ) );
+		wp_enqueue_script('sw', plugins_url( 'assets/js/admin-scripts.js' , __FILE__ ), array('jquery', 'jquery-ui-core', 'jquery-ui-sortable'), null, true );
 	} else {
 		///////////////////////
 	}
 }
 add_action('init', 'sw_enqueue_scripts');
-	
+
 
 	
 /**
@@ -219,7 +225,7 @@ function sw_show_metabox_code($post) {
 	
 	if ($post->post_parent != 0) return;
 	
-	$code = get_post_meta($post->ID, SW_PREFIX.'promo_code', true);
+	$code = get_post_meta($post->ID, SW_PREFIX.'promo_code', true); // ####### cache this !!!!
 	
 	$code_enabled = (isset($code['enabled'])) ? $code['enabled'] : "";
 	$code_base = (isset($code['base'])) ? $code['base'] : "";
@@ -257,7 +263,7 @@ function sw_show_metabox_code($post) {
 				<p class="description"><?php _e('10 digits will create: <code>nUFyPiFdB1</code>', 'sw')  ?></p>
 			</td>
 		</tr>
-		<tr><td colspan="2"><? wp_nonce_field(basename(__FILE__), 'promo-metabox-code'); ?><a href="<?php echo add_query_arg('print_serie', $post->ID, get_admin_url(1, "/post.php?post=$post->ID&action=edit")) ?>" class="button alignright"><?php _e('Download serie in .txt', 'sw') ?></a></td></tr>
+		<tr><td colspan="2"><? wp_nonce_field(basename(__FILE__), 'promo-metabox-code'); ?><a href="<?php echo add_query_arg('print_serie', $post->ID, get_admin_url(1, "/post.php?post=$post->ID&action=edit")) ?>" class="button alignright"><?php _e('Download serie', 'sw') ?></a></td></tr>
 	</table>
 	<?php
 }
@@ -289,8 +295,8 @@ function sw_show_metabox_form($post) {
 		'jabber' => 'Jabber / Google Talk'
 	);
 	
-	$code = get_post_meta($post->ID, SW_PREFIX.'promo_code', true);
-	$form = get_post_meta($post->ID, SW_PREFIX.'promo_form', true);
+	$code = get_post_meta($post->ID, SW_PREFIX.'promo_code', true); // ####### cache this !!!!
+	$form = get_post_meta($post->ID, SW_PREFIX.'promo_form', true); // ####### cache this !!!!
 	
 	if ( !isset($form['fields']) || empty($form['fields']) )
 		$form['fields']['user_email'] = 'Email';
@@ -338,11 +344,11 @@ function sw_show_metabox_form($post) {
 				<select name="promo-form-terms">
 					<option value="0"><?php _e('Without Terms page') ?></option>
 					<?php $pages = get_posts(array('post_type' => 'page', 'numberposts' => -1)); ?>
-					<?php foreach ($pages as $ID => $page): ?>
-					<option value="<?php echo $ID ?>"><?php echo apply_filters('the_title', $page->post_title) ?></option>
+					<?php foreach ($pages as $page): ?>
+					<option value="<?php echo $page->ID ?>" <?php selected($page->ID, $form['terms']) ?>><?php echo apply_filters('the_title', $page->post_title) ?></option>
 					<?php endforeach ?>
 				</select>
-				<p class="description"><?php _e('If you define a "Terms" page the customer will be asked to accept it before allowing them to place their order.', 'sw'); ?></p>
+				<p class="description"><?php _e('If you define a "Terms" page the customer will be asked to accept it before submit the form.', 'sw'); ?></p>
 			</td>
 		</tr>
 	</table>
@@ -362,44 +368,135 @@ function sw_show_metabox_form($post) {
 function sw_show_metabox_users() {
 	global $post;
 	
-	// bla bla bla
+	$code = get_post_meta($post->ID, SW_PREFIX .'promo_code', true); // ###################### cache this !!!!
+	$winners = get_post_meta($post->ID, SW_PREFIX .'promo_winners', true); // ###################### cache this !!!!
+	$users = get_post_meta($post->ID, SW_PREFIX .'promo_user', false); // ###################### cache this !!!!
 	
-	$winners = get_post_meta($post->ID, SW_PREFIX .'promo_winners', true);
-	$users = get_post_meta($post->ID, SW_PREFIX .'promo_user', false);
-	
-	if ( !isset($winners['number']) || !empty($winners['number']) || $winners['number'] == 0 )
+	if ( !isset($winners['number']) || empty($winners['number']) || $winners['number'] == 0 )
 		$winners['number'] = 1;
 	
-	wp_nonce_field(basename(__FILE__), 'promo-metabox');
+	$tr_class = ( !isset($users) || empty($users) ) ? ' class="hide"' : "";
+	
+	$processed_winners = array();
+	foreach ( $winners['winners'] as $winner_ ) {
+		$user_ = get_userdata($winner_['user_id']);
+		$temp_ = "<a href=\"/wp-admin/user-edit.php?user_id={$user_->ID}\" target=\"_blank\">".sw_process_username($user_)."</a>";
+		if ( isset($code['enabled']) && $code['enabled'] === 'true' )
+			$temp_ .= "(<code>{$winner_['code']}</code>)";
+		$processed_winners[] = $temp_;
+	}
 	?>
 	<table class="form-table sw">
 		<tr><td>
-		<label for="promo-winner-number"><?php _e('Number of winners', 'sw') ?></label>&nbsp;&nbsp;
-		<input name="promo-winner-number" id="promo-code-end" type="number" step="1" min="1" value="<?php echo $winners['number'] ?>" class="small-text">
-		<p class="description"><?php _e('For example, a draw could have 3 winners, with 3 different lots', 'sw')  ?></p>
+			<label for="promo-winner-number"><?php _e('Number of winners', 'sw') ?></label>&nbsp;&nbsp;
+			<input name="promo-winner-number" id="promo-winner-number" type="number" step="1" min="1" max="<?php echo (count($users) < 1) ? 1 : count($users); ?>" value="<?php echo $winners['number'] ?>" class="small-text">
+			<p class="description" sryle="display: inline"><?php _e('For example, a draw could have 3 winners, with 3 different lots', 'sw')  ?></p>
 		</td></tr>
 		<tr><td>
 			<p><?php  _e('Users who have participated in the draw:', 'sw') ?></p>
-			<ul class='tagchecklist the-tagcloud' style='padding-left: 20px; margin-top:10px; background-color: #fafafa'>
-				<!--<li><a href="/wp-admin/user-edit.php?user_id=1" target="_blank">Carlos Sanz Garcia</a>, código: <u>CARIBE2012-1</u>, <em>15-07-2012 15:55h</em></li>-->
-	<?php
-		foreach ($users as $user) {
-			$user_ = get_userdata($user['user_id']);
-			if ($user_):
-				if (!$user_->user_firstname && !$user_->user_lastname) $user_name = $user_->user_login;
-		  		$user_link = "<a href=\"/wp-admin/user-edit.php?user_id={$user_->ID}\" target=\"_blank\">".ucfirst($user_name)."</a>";
-				printf("<li>%s, code: %s, <em>%s</em></li>", $user_link, $user['code'], $user['date']);
-			endif; 
-		}			
-	?>
+			<ul id="promo-user-list" class='the-tagcloud' style='padding-left: 20px; margin-top:10px; background-color: #fafafa'>
+				<?php if (!$users || empty($users)): ?>
+					<li><p class="description"><?php __('no participants', 'sw') ?></p></li>;
+				<?php 
+					else:
+					foreach ($users as $user) {
+						$user_ = get_userdata($user['user_id']);
+						if ($user_):
+					  		$user_link = "<a href=\"/wp-admin/user-edit.php?user_id={$user_->ID}\" target=\"_blank\">".sw_process_username($user_)."</a>";
+							echo '<li>';
+							printf("<strong>%s</strong>h - %s", sw_format_date($user['date']), $user_link);
+							if ($code && isset($code['enabled']) && $code['enabled'] === 'true') echo " - <code style=\"display: inline-block\">{$user['code']}</code>";
+							echo '</li>';
+						endif; 
+					}			
+				endif;
+				?>
 			</ul>
 		</td></tr>
-		<tr><td>
+		<tr<?php echo $tr_class ?>><td>
+			<a href="<?php echo add_query_arg('download_user_list', $post->ID, get_admin_url(1, "/post.php?post=$post->ID&action=edit")) ?>" class="button alignleft"><?php _e('Download participants', 'sw') ?></a>
+		</td></tr>
+		<tr<?php echo $tr_class ?>><td>
 			<p><?php _e('Winners', 'sw') ?></p>
-			<div id="promo-winner-result" class='tagchecklist surveylist the-tagcloud' style='padding-left: 20px; text-align:right; margin-top:10px; background-color: #fafafa'>no hay ganador todabía</div></td></tr>
-		<tr><td><a href="<?php echo add_query_arg('download_user_list', $post->ID, get_admin_url(1, "/post.php?post=$post->ID&action=edit")) ?>" class="button alignleft"><?php _e('Download participants list in .txt', 'sw') ?></a><input type="hidden" value="<?php echo wp_create_nonce('promo_winner') ?>" id="promo-nonce"><a href="#" class="button-primary alignright" id="select-winner"><?php _e('Random winner/s', 'sw') ?></a></td></tr>
+			<div id="promo-winner-result" class='tagchecklist surveylist the-tagcloud' style='padding-left: 20px; margin-top:10px; background-color: #fafafa'>
+				<?php if (!$processed_winners || empty($processed_winners)): ?>
+				<p class="description"><?php _e('no winner/s for now'); ?></p>
+				<?php else: ?>
+				<p><?php echo implode(', ', $processed_winners); ?></p>
+				<?php endif; ?>
+			</div>
+		</td></tr>
+		<tr<?php echo $tr_class ?>><td>
+			<input type="hidden" value="<?php echo wp_create_nonce('promo_winner') ?>" id="promo-winner-nonce"><input type="hidden" value="<?php echo $winners['number'] ?>" id="promo-winner-num"><a href="#" class="button-primary" id="promo-select-winner"><?php _e('Random winner/s', 'sw') ?></a>
+		</td></tr>
 	</table>
 	<?php
+}
+
+
+
+/**
+ * retrieve participant user data by hash
+ *
+ * @param $hash encripted code
+ *
+ * @return object | bolean combined result
+ *
+ * @package Site Promos
+ * @since 0.1
+ *
+**/
+function sw_get_participant_by_hash($hash) {
+	global $post;
+	
+	$users = get_post_meta($post->ID, SW_PREFIX .'promo_user', false); // ###################### cache this !!!!
+	
+	if (!$users || empty($users)) return false;
+	
+	foreach ($users as $user) 
+		if ( $user['code'] === $hash ) return get_userdata($user['user_id']);
+	
+	return false;
+}
+
+
+
+/**
+ * format user name
+ *
+ * @param $data object user data object
+ *
+ * @return formated string username
+ *
+ * @package Site Promos
+ * @since 0.1
+ *
+**/
+function sw_process_username($data) {
+
+	$user_name = $data->user_firstname;
+	if ($data->user_lastname) $user_name .= " " . $data->user_lastname;
+	if (!$data->user_firstname && !$data->user_lastname) $user_name = $data->user_login;
+	
+	return $user_name;
+}
+
+
+/**
+ * format date from string
+ *
+ * @param $string string with date-time
+ *
+ * @return formated string
+ *
+ * @package Site Promos
+ * @since 0.1
+ *
+**/
+function sw_format_date($string) {
+	
+	$format = get_option('date_format') . ' : ' . get_option('time_format'); // ###################### cache this !!!!
+	return date_i18n( $format, strtotime($string) );
 }
 
 
@@ -444,16 +541,42 @@ function sw_custom_hash($input, $length, $charset = 'abcdefghijklmnopqrstuvwxyzA
  *
 **/
 function sw_promo_winner() {
-	// check to see if the submitted nonce matches with the
-	// generated nonce we created earlier
-	/*
+	
 	if (wp_verify_nonce( $_POST['nonce'], 'promo_winner' )) {
 		
-		update_post_meta($_POST['post_id'], 'survey_winner', $_POST['winner_id']);
-		$user_ = get_userdata($_POST['winner_id']);
-		if (!$user_->user_firstname && !$user_->user_lastname) $user_name = $user_->user_login;
-		$winner = "<a href=\"/wp-admin/user-edit.php?user_id={$user_->ID}\" target=\"_blank\">".ucfirst($user_name)."</a>";
-		$response = array( 'status' => 1, 'content' => $winner);
+		$code = get_post_meta($_POST['post_id'], SW_PREFIX .'promo_code', true); // ###################### cache this !!!!
+		$winners = get_post_meta($_POST['post_id'], SW_PREFIX .'promo_winners', true); // ###################### cache this !!!!
+		$users = get_post_meta($_POST['post_id'], SW_PREFIX .'promo_user', false); // ###################### cache this !!!!
+		
+		if (!$users || empty($users) )  {
+			
+			$response = array( 'status' => 0, 'content' => '');
+			
+		} else {
+			
+			$rand = array_rand($users, $winners['number']);
+			$final_winners = array();
+			$output = array();
+			
+			if (!is_array($rand)) $rand = array($rand);
+			
+			foreach ($rand as $key) {
+				$user_data = get_userdata($users[$key]['user_id']);
+				
+				$output_ = "<a href=\"/wp-admin/user-edit.php?user_id={$user_data->ID}\" target=\"_blank\">".sw_process_username($user_data)."</a>";
+				if ( isset($code['enabled']) && $code['enabled'] === 'true' ) $output_ .= " (<code>{$users[$key]['code']}</code>)";
+				$output[] = $output_;
+				 
+				$final_winners[] = $users[$key];	
+			}
+			$output = implode(', ', $output);
+			
+			//save participants data
+			$winners['winners'] = $final_winners;
+			update_post_meta($_POST['post_id'], SW_PREFIX.'promo_winners', $winners);
+				
+			$response = array( 'status' => 1, 'content' => $output );
+		}
 		
 	} else {
 			
@@ -464,11 +587,10 @@ function sw_promo_winner() {
 	header( "Content-Type: application/json" );
 	echo json_encode($response);
 	exit;
-	*/
 }
 if (is_admin()) {
-	add_action('wp_ajax_set_promo_winner', array($this, 'sw_promo_winner'));
-	add_action('wp_ajax_nopriv_set_promo_winner', array($this, 'sw_promo_winner'));
+	add_action('wp_ajax_set_promo_winner', 'sw_promo_winner');
+	add_action('wp_ajax_nopriv_set_promo_winner', 'sw_promo_winner');
 }
 
 
@@ -502,15 +624,23 @@ function sw_save_promo($post_id) {
 	);
 	update_post_meta($post_id, SW_PREFIX.'promo_code', $code);
 	
-	
-	
 	// save form data	
 	$form = array(
 		'fields' => $_POST['promo-form-list'],
-		//'terms' => $_POST['promo-form-terms']
+		'terms' => $_POST['promo-form-terms']
 	);
 	update_post_meta($post_id, SW_PREFIX.'promo_form', $form);
-		
+	
+	//save participants data
+	$winners = get_post_meta($post_id, SW_PREFIX .'promo_winners', true); // ###################### cache this !!!!
+	
+	if (!$winners) $winners = array(
+		'number' => 1,
+		'winners' => array()
+	);
+	
+	$winners['number'] = $_POST['promo-winner-number'];
+	update_post_meta($post_id, SW_PREFIX.'promo_winners', $winners);	
 }
 if (is_admin()) add_action('save_post', 'sw_save_promo');
 
@@ -526,19 +656,16 @@ if (is_admin()) add_action('save_post', 'sw_save_promo');
 **/
 function sw_promo_columns($columns) {
 	
-	$comments_icon = $columns['comments'];
-	
-	unset($columns['comments']);
-	unset($columns['author']);
 	unset($columns['date']);
 	
-	$columns['blocked'] = "<img src=\"" . plugins_url( 'assets/images/padlock-icon.png' , __FILE__ ) . "\" width=\"22\" height=\"22\" />";
-	$columns['comments'] = $comments_icon;
+	$columns['users'] = __('Participants', 'sw');
+	$columns['promo_code'] = __('Promo Code', 'sw');
+	$columns['winners'] = __('Winner/s', 'sw');
 	$columns['date'] = __('Date');
 	
 	return $columns;
 }
-add_filter('manage_edit-page_columns', 'sw_promo_columns');
+add_filter('manage_edit-promo_columns', 'sw_promo_columns');
 
 
 
@@ -551,21 +678,57 @@ add_filter('manage_edit-page_columns', 'sw_promo_columns');
  *
 **/
 function sw_promo_show_columns($name) {
-	global $post, $default_theme_pages;
-	
-	if (!isset($default_theme_pages)) return;
+	global $post;
 	
 	switch ($name) {
-		case 'blocked':
-			foreach ($default_theme_pages as $page) {
-				if ( get_option($page['option']) == $post->ID ) {
-					echo "<img src=\"" . plugins_url( 'assets/images/gear-icon.png' , __FILE__ ) . "\" width=\"19\" height=\"19\" /><br /><small style=\"color: gray\">" . $page['description'] . "</small>";
-				}
+		case 'users':
+			$users = get_post_meta($post->ID, SW_PREFIX .'promo_user', false);
+			
+			if ($users && !empty($users)) {
+				
+				echo "<p><strong>" . count($users) . "</strong> " . __('participants', 'sw') . '</p>' . '<p><a href="'. add_query_arg('download_user_list', $post->ID, get_admin_url(1, "/edit.php?post_type=promo")).'" class="button-secondary">' . __('Download participants', 'sw') . '</a></p>';
+			} else {
+				echo '<p class="disabled">' . __('no participants', 'sw') . '</p>';
 			}
+				
 			break;
+		case 'promo_code':
+			$code = get_post_meta($post->ID, SW_PREFIX .'promo_code', true);
+			
+			if ($code && $code['enabled'] === 'true') {
+				echo "<p><code>{$code['base']}</code></p>" . '<p><a href="'. add_query_arg('print_serie', $post->ID, get_admin_url(1, "/edit.php?post_type=promo")).'" class="button-secondary">' . __('Download serie', 'sw') . '</a></p>';
+			} else {
+				echo '<p class="disabled">' . __('disabled', 'sw') . "</p>";
+			}
+				
+		break;
+		case 'winners':
+		
+			$code = get_post_meta($post->ID, SW_PREFIX .'promo_code', true);
+			$winners = get_post_meta($post->ID, SW_PREFIX .'promo_winners', true);
+			
+			if (isset($winners['winners']) && !empty($winners['winners'])) {
+				
+				$processed_winners = array();
+				foreach ( $winners['winners'] as $winner_ ) {
+					$user_ = get_userdata($winner_['user_id']);
+					$temp_ = "<a href=\"/wp-admin/user-edit.php?user_id={$user_->ID}\" target=\"_blank\">".sw_process_username($user_)."</a>";
+					if ( isset($code['enabled']) && $code['enabled'] === 'true' )
+						$temp_ .= " - <code>{$winner_['code']}</code>";
+					$processed_winners[] = $temp_;
+				}
+				
+				echo implode('<br/>', $processed_winners);
+				
+			} else {
+				echo '<p class="disabled">' . __('no winner/s for now', 'sw') . "</p>";
+			}
+				
+		break;
+		
 	}
 }
-add_filter('manage_page_posts_custom_column',  'sw_promo_show_columns');
+add_filter('manage_promo_posts_custom_column',  'sw_promo_show_columns');
 
 
 
@@ -625,13 +788,17 @@ add_filter('page_row_actions', 'sw_promo_row_actions', 0, 2);
 function sw_tables_styles() {
 	echo "
 	<style type=\"text/css\">
-		/*
-		.blocked.column-blocked { text-align: center;	}
-		.manage-column.column-blocked { 
-			width: 120px;
-			text-align: center;
-		}
-		*/
+		.wp-list-table td .disabled { color:#999 }
+		/* participants */
+		.manage-column.column-users {  width: 160px; text-align: center; }
+		.users.column-users { text-align: center;	}
+		/* column code */
+		.manage-column.column-promo_code {  width: 130px; text-align: center; }
+		.promo_code.column-promo_code { text-align: center;	}
+		/* column winners */
+		.manage-column.column-winners {  width: 22%; text-align: center; }
+		.winners.column-winners { text-align: center; }
+		
 	</style>
 	".PHP_EOL;
 }
