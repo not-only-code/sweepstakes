@@ -1,2 +1,26 @@
 /* Sweepstakes 0.1 - Carlos Sanz Garcia <carlos.sanz@gmail.com> - http://github.com/not-only-code/sweepstakes */
 
+#promo-form-selector {
+	display: block;
+	overflow: hidden;
+	text-align: center;
+	padding: 15px !important;
+	margin-bottom: 10px;
+	border-radius: 5px;
+	background-color: #eaeaea;
+}
+
+#promo-form-selector a {
+	text-decoration: none;
+	display: inline-block;
+	padding: 8px;
+	margin: 0 10px;
+	background-color: lightgrey;
+	min-width: 20%;
+	color: #333;
+}
+
+#promo-form-selector a.active {
+	color: #eaeaea;
+	background-color: #666;
+}
