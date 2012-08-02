@@ -65,7 +65,6 @@ function sw_init() {
 	// create post types
 	add_action('init', 'sw_post_types');
 	
-	
 	if (is_admin()) {
 		
 		// caching metas
@@ -85,6 +84,9 @@ function sw_init() {
 		// ajax hooks
 		add_action('wp_ajax_set_promo_winner', 'sw_promo_winner');
 		add_action('wp_ajax_nopriv_set_promo_winner', 'sw_promo_winner');
+		add_action('wp_ajax_del_promo_winner', 'sw_delete_winner');
+		add_action('wp_ajax_nopriv_del_promo_winner', 'sw_delete_winner');
+		add_action('right_now_content_table_end', 'sw_right_now_promos');
 		
 		// promos list table
 		add_filter('manage_edit-promo_columns', 'sw_promo_columns');
@@ -104,8 +106,11 @@ function sw_init() {
 		add_filter('promo_form_field', 'sw_form_field_password', 1, 4);
 		
 		// front form action
-		add_action('sw-before-form', 'sw_print_errors');
-		add_action('sw-before-form', 'sw_print_messages');
+		add_action('wp', 'sw_cache_metas', 1);
+		add_action('wp', 'sw_process_register', 2);
+		add_action('sw-before-form', 'sw_get_responses', 1);
+		add_action('sw-before-form', 'sw_print_errors', 2);
+		add_action('sw-before-form', 'sw_print_messages', 2);
 	}
 }
 
@@ -148,7 +153,7 @@ function sw_post_types() {
 		'capability_type' => 'post',
 		'menu_position' => 7,
 		'hierarchical' => true,
-		'supports' => array( 'title', 'editor', 'thumbnail', 'page-attributes' ),
+		'supports' => array( 'title', 'editor', 'thumbnail' ),
 		'taxonomies' => array(),
 		'has_archive' => false,
 		'rewrite' => array('slug' => 'promo', 'in_front' => false),
@@ -197,8 +202,32 @@ function sw_frontend_scripts() {
 
 
 
-
 //////////////////////////////////////////////////////////////////////////////////////// BACKEND	
+	
+	
+	
+/**
+ * adds promos at 'right now' dashboard widget
+ *
+ * @package Swepstakes
+ * @since 0.1
+ *
+**/
+function sw_right_now_promos() {
+	
+	$num_promos = wp_count_posts( 'promo' );
+	echo '<tr>' . PHP_EOL;
+	// Pages
+	$num = number_format_i18n( $num_promos->publish );
+	$text = _n( __('Promo', 'sw'), __('Promos', 'sw'), $num_promos->publish );
+	if ( current_user_can( 'edit_pages' ) ) {
+		$num = "<a href='edit.php?post_type=promo'>$num</a>" . PHP_EOL;
+		$text = "<a href='edit.php?post_type=promo'>$text</a>" . PHP_EOL;
+	}
+	echo '<td class="first b b_pages">' . $num . '</td>' . PHP_EOL;
+	echo '<td class="t pages">' . $text . '</td>' . PHP_EOL;
+	echo '</tr><tr>' . PHP_EOL;
+}
 
 
 
@@ -245,24 +274,15 @@ function sw_caching_metas() {
  *
 **/
 function sw_cache_metas($promo_id = false) {
-	
-	/*
 	global $post;
 	
-	if (!$promo_id && !isset($post)) return;
-	
-	if (!$promo_id && isset($post)) $promo_id = $post;
-	
-	if ( is_object($promo_id) ) {
-		if ( $promo_id->post_type === 'promo') {
-			$promo_id = $promo_id->ID;
+	if ( !$promo_id || ( is_object($promo_id) && !isset($promo_id->ID) ) ) {
+		if ( isset($post) ) {
+				$promo_id = $post->ID;
 		} else {
 			return;
 		}
 	}
-	*/
-	
-	if (!$promo_id) return;
 	
 	wp_cache_set('promo_code', get_post_meta($promo_id, SW_PREFIX .'promo_code', true));
 	wp_cache_set('promo_form', get_post_meta($promo_id, SW_PREFIX .'promo_form', true));
@@ -350,7 +370,6 @@ function sw_meta_boxes() {
 
 
 
-
 /**
  * prints meta-box code generator
  *
@@ -362,24 +381,36 @@ function sw_show_metabox_code($post) {
 	
 	if ($post->post_parent != 0) return;
 	
+	$users = wp_cache_get('promo_user');
 	$code = wp_cache_get('promo_code');
 	
-	$code_enabled = (isset($code['enabled'])) ? $code['enabled'] : "";
+	$code_enabled = (isset($code['enabled']) && !empty($code['enabled'])) ? $code['enabled'] : "";
+	
 	$code_base = (isset($code['base'])) ? $code['base'] : "";
 	$code_start = (isset($code['start'])) ? $code['start'] : "1";
 	$code_end = (isset($code['end'])) ? $code['end'] : "100";
-	$code_digits = (isset($code['digits']) && $code['digits'] > 5 ) ? $code['digits'] : "6";
+	$code_digits = (isset($code['digits']) && $code['digits'] > 7 ) ? $code['digits'] : "8";
 	
 	?>
 	<table class="form-table sw">
-		<tr><th colspan="2"><input type="checkbox" value="true" name="promo-code-enabled" id="promo-code-enabled" <?php checked($code_enabled, 'true') ?>><label for="promo-code-enabled">&nbsp;&nbsp;<?php _e('Activate promo codes series', 'sw') ?></label></th></tr>
+		<?php if ($users): ?>
+		<tr><th colspan="2" style="padding: 0; margin: 0"><input type="hidden" value="<?php echo $code_enabled ?>" name="promo-code-enabled">
+			<p class="description" style="margin: 0"><?php _e('<em>Currently there are participants, so these values <u>can not be changed</u></em>', 'sw'); ?>.</p>
+		</th></tr>
+		<?php else: ?>
+			<tr><th colspan="2"><input type="checkbox" value="true" name="promo-code-enabled" id="promo-code-enabled" <?php checked($code_enabled, 'true') ?>><label for="promo-code-enabled">&nbsp;&nbsp;<?php _e('Activate promo codes series', 'sw') ?></label></th></tr>
+		<?php endif; ?>
 	</table>
 	<table id="promo-code-table" class="form-table sw <?php echo $code_enabled ?>">
-		<tr><th colspan="2"><p class="description"><?php  _e('Creates a serial code for this sweepstake', 'sw') ?></p></th></tr>
+		<tr><th colspan="2">
+			<?php if(!$users): ?>
+			<p class="description"><?php  _e('Creates a serial code for this sweepstake', 'sw') ?>.</p>
+			<?php endif; ?>
+		</th></tr>
 		<tr>
 			<td><label for="promo-code-base"><?php _e('code', 'sw') ?></label></td>
 			<td>
-				<input type="text" name="promo-code-base" id="promo-code-base" class="sp-text-field" value="<?php echo $code_base ?>" /><br/>
+				<input type="text" name="promo-code-base" id="promo-code-base" class="sp-text-field" value="<?php echo $code_base ?>" <?php if ($users) echo 'readonly="readonly"';  ?>/><br/>
 				<p class="description"><?php _e('PROMO2012', 'sw') ?></p>
 			</td>
 		</tr>
@@ -387,16 +418,16 @@ function sw_show_metabox_code($post) {
 			<td><label><?php _e('range', 'sw') ?></label></td>
 			<td>
 				<label for="promo-code-start"><?php _e('start', 'sw') ?></label>&nbsp;
-				<input name="promo-code-start" id="promo-code-start" type="number" step="1" min="1" value="<?php echo $code_start ?>" class="small-text">&nbsp;&nbsp;&nbsp;&nbsp;
+				<input name="promo-code-start" id="promo-code-start" type="number" step="1" min="1" value="<?php echo $code_start ?>" class="small-text" <?php if ($users) echo 'readonly="readonly"'; ?>>&nbsp;&nbsp;
 				<label for="promo-code-end"><?php _e('end', 'sw') ?></label>&nbsp;
-				<input name="promo-code-end" id="promo-code-end" type="number" step="1" min="1" value="<?php echo $code_end ?>" class="small-text">
-				<p class="description"><?php _e('For example: 1 - 100000', 'sw')  ?></p>
+				<input name="promo-code-end" id="promo-code-end" type="number" step="1" min="1" max="10000" value="<?php echo $code_end ?>" class="small-text"<?php if ($users) echo 'readonly="readonly"'; ?>>
+				<p class="description"><?php _e('For example: 1 - 1000', 'sw')  ?></p>
 			</td>
 		</tr>
 		<tr>
 			<td><label><?php _e('digits', 'sw') ?></label></td>
 			<td>
-				<input name="promo-code-digits" id="promo-code-digits" type="number" step="1" min="5" max="32" value="<?php echo $code_digits ?>" class="small-text">&nbsp;&nbsp;
+				<input name="promo-code-digits" id="promo-code-digits" type="number" step="1" min="8" max="32" value="<?php echo $code_digits ?>" class="small-text"<?php if ($users) echo 'readonly="readonly"'; ?>>&nbsp;&nbsp;
 				<p class="description"><?php _e('10 digits will create: <code>nUFyPiFdB1</code>', 'sw')  ?></p>
 			</td>
 		</tr>
@@ -423,7 +454,6 @@ function sw_show_metabox_form($post) {
 		'first_name' => 'First Name',
 		'last_name' => 'Last Name',
 		'description' => 'Biographical Info',
-		'user_login' => 'Login',
 		'user_pass' => 'Password',
 		'user_url' => 'Website',
 		'aim' => 'Aim',
@@ -434,8 +464,9 @@ function sw_show_metabox_form($post) {
 	$code = wp_cache_get('promo_code');
 	$form = wp_cache_get('promo_form');
 	
-	if ( !isset($form['fields']) || empty($form['fields']) )
-		$form['fields']['user_email'] = 'Email';
+	// default fields
+	$form['fields']['user_login'] = 'Username';
+	$form['fields']['user_email'] = 'Email';
 	
 	if ( isset($code['enabled']) && !empty($code['enabled']) && !array_key_exists('promo_code', $form['fields']) )
 		$form['fields']['promo_code'] = 'Promo Code';
@@ -460,7 +491,7 @@ function sw_show_metabox_form($post) {
 				<ul id="promo-form-list" class="tagchecklist the-tagcloud form-list-container ui-sortable" style="padding-left: 20px; margin-top:10px; background-color: #fafafa">
 					<?php foreach ($form['fields'] as $key => $name): ?>
 					<li style="cursor: move">
-						<?php if( in_array($key, array('user_email', 'promo_code'))): ?>
+						<?php if( in_array($key, array('user_email', 'promo_code', 'user_login'))): ?>
 						&nbsp;&nbsp;
 						<?php else: ?>
 						<span><a href='#' class='ntdelbutton sw-remove-item' style='top:-3px;'>X</a></span>&nbsp;&nbsp;
@@ -470,7 +501,7 @@ function sw_show_metabox_form($post) {
 					<?php endforeach; ?>
 						
 				</ul>
-				<p class="description"><?php _e('Add and sort the fields you want display in the form, all fields will be displayed as text input', 'sw') ?></p>
+				<p class="description"><?php _e('Add and sort the fields you want display in the register form, all fields will be displayed as text input', 'sw') ?></p>
 		</td></tr>
 		<tr>
 			<td>
@@ -478,7 +509,7 @@ function sw_show_metabox_form($post) {
 			</td>
 			<td>
 				<select name="promo-form-terms">
-					<option value="0"><?php _e('Without Terms page') ?></option>
+					<option value="0"><?php _e('Without Terms page', 'sw') ?></option>
 					<?php $pages = get_posts(array('post_type' => 'page', 'numberposts' => -1)); ?>
 					<?php foreach ($pages as $page): ?>
 					<option value="<?php echo $page->ID ?>" <?php selected($page->ID, $form['terms']) ?>><?php echo apply_filters('the_title', $page->post_title) ?></option>
@@ -517,7 +548,7 @@ function sw_show_metabox_users() {
 		$user_ = get_userdata($winner_['user_id']);
 		$temp_ = "<a href=\"/wp-admin/user-edit.php?user_id={$user_->ID}\" target=\"_blank\">".sw_process_username($user_)."</a>";
 		if ( isset($code['enabled']) && $code['enabled'] === 'true' )
-			$temp_ .= "(<code>{$winner_['code']}</code>)";
+			$temp_ .= " (<code>{$winner_['code']}</code>)";
 		$processed_winners[] = $temp_;
 	}
 	?>
@@ -526,7 +557,7 @@ function sw_show_metabox_users() {
 			<p><?php  _e('Users who have participated in the draw:', 'sw') ?></p>
 			<ul id="promo-user-list" class='the-tagcloud' style='padding-left: 15px; margin-top:10px; margin-bottom:0; background-color: #fafafa'>
 				<?php if (!$users || empty($users)): ?>
-					<li><p class="description"><?php _e('no participants yet', 'sw') ?></p></li>
+					<li><span class="description"><?php _e('no participants yet', 'sw') ?></span></li>
 				<?php 
 					else:
 					foreach ($users as $user) {
@@ -548,20 +579,20 @@ function sw_show_metabox_users() {
 		</td></tr>
 		<tr<?php echo $tr_class ?>><td>
 			<p><?php _e('Winners', 'sw') ?></p>
-			<div id="promo-winner-result" class='tagchecklist surveylist the-tagcloud' style='padding-left: 15px; margin-top:10px; margin-bottom:0; background-color: #fafafa'>
+			<p id="promo-winner-result" class='tagchecklist surveylist the-tagcloud' style='padding-left: 15px; margin-top:10px; margin-bottom:0; background-color: #fafafa'>
 				<?php if (!$processed_winners || empty($processed_winners)): ?>
-				<p class="description"><?php _e('no winner/s for now'); ?></p>
+				<span class="description"><?php _e('no winner/s for now', 'sw'); ?></span>
 				<?php else: ?>
-				<p><?php echo implode(', ', $processed_winners); ?></p>
+				<?php echo implode(', ', $processed_winners); ?>
 				<?php endif; ?>
-			</div>
+			</p>
 		</td></tr>
 		<tr<?php echo $tr_class ?>><td>
 			<span class="alignleft">
 			<label for="promo-winner-number"><?php _e('Number of winners', 'sw') ?></label>&nbsp;&nbsp;
 			<input name="promo-winner-number" id="promo-winner-number" type="number" step="1" min="1" max="<?php echo (count($users) < 1) ? 1 : count($users); ?>" value="<?php echo $winners['number'] ?>" class="small-text">
 			</span>
-			<input type="hidden" value="<?php echo wp_create_nonce('promo_winner') ?>" id="promo-winner-nonce"><input type="hidden" value="<?php echo $winners['number'] ?>" id="promo-winner-num"><a href="#" class="button-primary alignright" id="promo-select-winner"><?php _e('Random winner/s', 'sw') ?></a>
+			<input type="hidden" value="<?php echo wp_create_nonce('promo_winner') ?>" id="promo-winner-nonce"><input type="hidden" value="<?php echo $winners['number'] ?>" id="promo-winner-num"><a href="#" class="button-primary alignright" id="promo-select-winner"><?php _e('Random winner/s', 'sw') ?></a><a href="#" class="button-secondary alignright" id="promo-delete-winners"><?php _e('Delete winner/s', 'sw') ?></a>
 			<p class="description" style="clear: both;"><?php _e('For example, a draw could have 3 winners, with 3 different lots', 'sw')  ?></p>
 		</td></tr>
 	</table>
@@ -616,6 +647,7 @@ function sw_process_username($data) {
 }
 
 
+
 /**
  * format date from string
  *
@@ -637,7 +669,7 @@ function sw_format_date($string) {
 
 
 /**
- * encodes a string with length parameter
+ * encodes a string with length parameter (resource-intensive)
  *
  * @param $input string to be encripted
  * @param $length length of result
@@ -727,6 +759,39 @@ function sw_promo_winner() {
 
 
 /**
+ * delete current promo winners
+ *
+ * @package Swepstakes
+ * @since 0.1
+ *
+**/
+function sw_delete_winner() {
+	
+	if (wp_verify_nonce( $_POST['nonce'], 'promo_winner' )) {
+		
+		$winners = wp_cache_get('promo_winners');
+					
+		//save participants data
+		$winners['winners'] = array();
+		update_post_meta($_POST['post_id'], SW_PREFIX.'promo_winners', $winners);
+		wp_cache_set('promo_winners', $winners);
+		
+		$response = array( 'status' => 1, 'content' => "<span class=\"description\">". __('no winner/s for now', 'sw') . "</span>" );
+		
+	} else {
+			
+		$response = array( 'status' => 0, 'content' => '');
+	}
+		
+	// response output
+	header( "Content-Type: application/json" );
+	echo json_encode($response);
+	exit;
+}
+
+
+
+/**
  * saves post meta data
  *
  * @param $post_id id of saved post 
@@ -784,7 +849,6 @@ function sw_save_promo($post_id) {
 	update_post_meta($post_id, SW_PREFIX.'promo_winners', $winners);
 	wp_cache_set('promo_winners', $winners);
 }
-
 
 
 
@@ -930,9 +994,6 @@ function sw_promo_process() {
 	
 	if ( !$post ) return;
 	
-	// caching meta fields
-	sw_cache_metas($post->ID);
-	
 	// check if contest is finished
 	//if (sw_check_finished()) return;
 	
@@ -946,6 +1007,13 @@ function sw_promo_process() {
 
 
 
+/**
+ * if there are winners contest is closed, show winners
+ *
+ * @package Swepstakes
+ * @since 0.1
+ *
+**/
 function sw_check_finished() {
 	
 	$winners = wp_cache_get('promo_winners');
@@ -953,7 +1021,7 @@ function sw_check_finished() {
 	// if there are winners contest is closed, show winners
 	if ( count($winners['winners']) > 0 ) {
 		
-		printf(__('<h2 class="%s">This sweepstakes is finished, and the winner/s is/are...</h2>', 'sw'), apply_filters('sw_header_class', 'page-title'));
+		printf(__("<h2 class='%s'>This sweepstakes is finished, and the winner/s is/are...</h2>", 'sw'), apply_filters('sw_header_class', 'page-title'));
 		
 		$processed_winners = array();
 		foreach ($winners['winners'] as $winner) {
@@ -963,7 +1031,7 @@ function sw_check_finished() {
 		
 		?><p class="<?php echo apply_filters('sw_winners_class', 'sw-winners') ?>"><?php echo implode(', ', $processed_winners) ?></p><?php
 		
-		printf(__('<p class=\'%s\'>If you are one of the lucky ones and have not received any mail, please contact the administrator.</p>', 'sw'), apply_filters('sw_text_class', ''));
+		printf(__("<p class='%s'>If you are one of the lucky ones and have not received any mail, please contact the administrator.</p>", 'sw'), apply_filters('sw_text_class', ''));
 		
 		return true;
 	}
@@ -973,7 +1041,7 @@ function sw_check_finished() {
 
 
 /**
- * show promo user logged form
+ * show promo form for logged users
  *
  * @package Swepstakes
  * @since 0.1
@@ -984,7 +1052,7 @@ function sw_promo_logged_form() {
 	
 	if (!$current_user) return;
 	
-	$user_name = ucfirst($current_user->user_firstname);
+	$user_name = sw_process_username($current_user);
 	
 	// metas
 	$winners = wp_cache_get('promo_winners');
@@ -992,17 +1060,16 @@ function sw_promo_logged_form() {
 	$form =	wp_cache_get('promo_form');
 	$users = wp_cache_get('promo_user');
 	
-	// process login form
-	sw_process_register();
+	// print messages
+	do_action('sw-before-form');
 	
 	// user is logged + promo code ( user can participate more than 1 time with different codes )
 	if ( isset($code['enabled']) && $code['enabled'] === 'true' ) {
 		
-		printf(__('<h2 class="%s">Hello <u>%s</u>, to participate on this promo add your code below</h2>', 'sw'), apply_filters('sw_header_class', 'page-title'), $user_name);
+		printf(__("<h2 class='%s'>Hello <u>%s</u>, to participate on this promo add your code below</h2>", 'sw'), apply_filters('sw_header_class', 'page-title'), $user_name);
 		
-		do_action('sw-before-form');
-		
-	    ?><form id="promo-form-login" action="<?php echo get_permalink($post->ID) ?>" method="post" class="<?php echo apply_filters("promo_form_class", "sw-form login"); ?>"><?php
+	    ?><form id="promo-form-login" action="<?php echo get_permalink($post->ID) ?>" method="post" class="<?php echo apply_filters("promo_form_class", "sw-form login"); ?>">
+		<input type="hidden" name="sw-form-post_ID"  value="<?php echo $post->ID ?>"><?php
 		wp_nonce_field('promo-form-nonce', 'sw-login-form');
 		
 		echo apply_filters('promo_form_field', '', 'promo_code', 'Promo Code', 1);
@@ -1019,21 +1086,18 @@ function sw_promo_logged_form() {
 		
 		if ( sw_user_did_participate($current_user->ID) ) {
 			
-			printf(__('<h2 class="%s">Hello <u>%s</u>, you\'ve participated in this promo</h2>', 'sw'), apply_filters('sw_header_class', 'page-title'), $user_name);
+			printf(__("<h2 class='%s'>Hello <u>%s</u>, you\'ve participated in this promo</h2>", 'sw'), apply_filters('sw_header_class', 'page-title'), $user_name);
 			
-			do_action('sw-before-form');
+			printf(__("<p class='%s'>Wait for the draw for testing whether you are one of the lucky</p>", 'sw'), apply_filters('sw_text_class', ''));
 			
-			printf(__('<p class="%s">Espera a que se realize el sorteo para comprovar si eres uno de los afortunados</p>', 'sw'), apply_filters('sw_text_class', ''));
-			
-			printf(__('<p class="%s">Thank you!</p>', 'sw'), apply_filters('sw_footer_class', 'sw-sign'));
+			printf(__("<p class='%s'>Thank you!</p>", 'sw'), apply_filters('sw_footer_class', 'sw-sign'));
 			
 		} else {
 			
-			printf(__('<h2 class="%s">Hello <u>%s</u>, to participate on this promo, click button below</h2>', 'sw'), apply_filters('sw_header_class', 'page-title'), $user_name);
-			
-			do_action('sw-before-form');
+			printf(__("<h2 class='%s'>Hello <u>%s</u>, to participate on this promo, click button below</h2>", 'sw'), apply_filters('sw_header_class', 'page-title'), $user_name);
 		
-		    ?><form id="promo-form-login" action="<?php echo get_permalink($post->ID) ?>" method="post" class="<?php echo apply_filters("promo_form_class", "sw-form login"); ?>"><?php
+		    ?><form id="promo-form-login" action="<?php echo get_permalink($post->ID) ?>" method="post" class="<?php echo apply_filters("promo_form_class", "sw-form login"); ?>">
+			<input type="hidden" name="sw-form-post_ID"  value="<?php echo $post->ID ?>"><?php
 			wp_nonce_field('promo-form-nonce', 'sw-login-form');
 		
 			echo apply_filters('promo_form_submit', '', 1);
@@ -1049,6 +1113,90 @@ function sw_promo_logged_form() {
 
 
 
+/**
+ * show promo register form
+ *
+ * @package Swepstakes
+ * @since 0.1
+ *
+**/
+function sw_promo_form() {
+	global $post;
+	
+	if (!isset($post)) return;
+	
+	$form = wp_cache_get('promo_form');
+	$code = wp_cache_get('promo_code');
+	
+	// messages
+	do_action('sw-before-form');
+	
+	printf(__("<h2 class='%s'>To participate in this promo, please choose</h2>", 'sw'), apply_filters('sw_header_class', 'page-title'));
+	
+	// switcher navigation
+	?><nav id="promo-form-selector">
+		<a id="promo-form-selector-register" href="#register" class="<?php echo apply_filters('sw_selector_register_class', 'active') ?>"><?php _e('Register') ?></a>
+		<a id="promo-form-selector-login" href="#login" class="<?php echo apply_filters('sw_selector_login_class', '') ?>"><?php _e('Log in') ?></a>
+	</nav><?php
+	
+	// register form
+	?><form id="promo-form" action="<?php echo get_permalink($post->ID) ?>#register" method="post" class="<?php echo apply_filters("promo_form_class", "sw-form register"); ?>">
+		<input type="hidden" name="sw-form-post_ID"  value="<?php echo $post->ID ?>"><?php
+	
+	wp_nonce_field('promo-form-nonce', 'sw-register-form');
+	
+	$index = 0;
+	foreach ($form['fields'] as $field => $name) {
+		$index ++;
+		echo apply_filters('promo_form_field', '', $field, $name, $index);
+	}
+	$index ++;
+	echo apply_filters('promo_form_submit', '', $index);
+	
+	if (isset($form['terms']) && !empty($form['terms']) && $terms_page = get_page($form['terms']) ) {
+		$index ++;
+		echo apply_filters('promo_form_terms', '', $terms_page, $index);
+	}
+	
+	?></form><?php
+	
+	// login form
+    ?><form id="promo-form-login" action="<?php echo get_permalink($post->ID) ?>#login" method="post" class="<?php echo apply_filters("promo_form_class", "sw-form login"); ?>" style="display: none">
+	 <input type="hidden" name="sw-form-post_ID"  value="<?php echo $post->ID ?>"><?php
+	wp_nonce_field('promo-form-nonce', 'sw-login-form');
+	
+	$index = 1;
+	echo apply_filters('promo_form_field', '', 'user_email', 'Email', $index);
+	
+	$index++;
+	echo apply_filters('promo_form_field', '', 'user_pass', 'Password', $index);
+	
+	if ( isset($code['enabled']) && $code['enabled'] === 'true' ) {
+		$index++;
+		echo apply_filters('promo_form_field', '', 'promo_code', 'Promo Code', $index);
+	}
+	
+	$index++;
+	echo apply_filters('promo_form_submit', '', $index);
+	
+	if (isset($form['terms']) && !empty($form['terms']) && $terms_page = get_page($form['terms']) ) {
+		$index++;
+		echo apply_filters('promo_form_terms', '', $terms_page, $index);
+	}
+	
+	?></form><?php 
+	
+}
+
+
+
+/**
+ * process participant submitted form
+ *
+ * @package Swepstakes
+ * @since 0.1
+ *
+**/
 function sw_process_register() {
 	global $sw_processed_fields, $post;
 		
@@ -1071,11 +1219,15 @@ function sw_process_register() {
 		
 		// cached metas
 		$code = wp_cache_get('promo_code');
+		$form = wp_cache_get('promo_form');
 		
 		// resseting
 		sw_reset_errors();
 		sw_reset_messages();
 		$sw_processed_fields = array();
+		
+		if ( isset($form['terms']) && !empty($form['terms']) )
+			sw_validate_field('terms');
 		
 		// common field for all cases
 		if ( isset($code['enabled']) && $code['enabled'] === 'true' ) {
@@ -1083,7 +1235,6 @@ function sw_process_register() {
 		} else {
 			$sw_processed_fields['promo_code'] = '';
 		}
-			
 		
 		// --> user logged in
 		if ( is_user_logged_in() ) {
@@ -1091,6 +1242,9 @@ function sw_process_register() {
 			
 			if (!sw_has_errors())
 				sw_promo_register($post->ID ,$current_user->ID,  $sw_processed_fields['promo_code']);
+			
+			// reset processed fields
+			$sw_processed_fields = array();
 			
 		} else {
 			
@@ -1103,7 +1257,6 @@ function sw_process_register() {
 					sw_validate_field('user_pass');
 					
 					if (sw_has_errors()) break;
-					
 					
 				   	$user_found = get_user_by_email($sw_processed_fields['user_email']);
 					 
@@ -1118,29 +1271,102 @@ function sw_process_register() {
 						'remember' => true
 					);
 					
-					######################################################################################################### check this point
-					
-					$auth = wp_signon($credentials, false);
+					$auth = wp_signon($credentials, true);
 					
 					if (is_wp_error($auth)) {
 						sw_add_error(__('Incorrect password', 'sw'));
 						break;
 					}
 					
-					_debug($auth);
-					wp_set_auth_cookie($auth->ID);
-					
 					if (!sw_has_errors())
 						sw_promo_register($post->ID, $auth->ID, $sw_processed_fields['promo_code']);
 					
+					// redirect to save cookies and show result
+					$url = add_query_arg(array('sw_message' => 1, 'sw_code' => $sw_processed_fields['promo_code']), home_url($_POST['_wp_http_referer']));
 					
+					// reset processed fields
+					$sw_processed_fields = array();
+					
+					// redirect
+					wp_safe_redirect($url);
+					exit;
 				break;
 				
 				// --> register
 				case 'register':
-					# code...
+					
+					foreach ($form['fields'] as $field => $name) 
+						sw_validate_field($field);
+					
+					if (sw_has_errors()) break;
+						
+					$user_data = $sw_processed_fields;
+					
+					if ( isset($user_data['promo_code']) )
+						unset($user_data['promo_code']);
+					
+					if ( isset($user_data['terms']) )
+						unset($user_data['terms']);
+					
+					if ( !isset($user_data['user_pass']) || empty($user_data['user_pass']) )
+						$user_data['user_pass'] = wp_generate_password(13);
+					
+					// creates user with submitted data
+					$user_id = wp_insert_user($user_data);
+					
+					if ( is_wp_error($user_id) ) {
+					  sw_add_error($user_id->get_error_message());
+					  break;
+				  	}
+					
+					$wp_default_fields = array(
+						'user_login',
+						'user_email',
+						'first_name',
+						'last_name',
+						'description',
+						'user_pass',
+						'user_url',
+						'aim',
+						'yim',
+						'jabber'
+					);
+					
+					// stores extra info
+					foreach ($user_data as $field => $data) 
+						if (!in_array($field, $wp_default_fields))
+							update_user_option( $user_id, $field, $data, true );
+					
+					// saves default settings for user
+					update_user_option( $user_id, 'default_password_nag', 'true', true );
+					update_user_option( $user_id, 'show_admin_bar_front', 'false', true );
+					
+					// sends an email notification to admin + user
+					sw_new_user_notification( $user_id, $user_data['user_pass'] );
+					
+					$credentials = array(
+						'user_login' => $user_data['user_login'],
+						'user_password' => $user_data['user_pass'],
+						'remember' => true
+					);
+					
+					// login user
+					$auth = wp_signon($credentials, true);
+					
+					if (!sw_has_errors())
+						sw_promo_register($post->ID, $auth->ID, $sw_processed_fields['promo_code']);
+					
+					// redirect to save cookies and show result
+					$url = add_query_arg(array('sw_message' => 1, 'sw_code' => $sw_processed_fields['promo_code']), home_url($_POST['_wp_http_referer']));
+					
+					// reset processed fields
+					$sw_processed_fields = array();
+					
+					// redirect
+					wp_safe_redirect($url);
+					exit;
+					
 					break;
-
 			}
 			
 		}
@@ -1151,6 +1377,57 @@ function sw_process_register() {
 }
 
 
+
+/**
+ * Notify the blog admin of a new user, normally via email.
+ *
+ * @param int $user_id User ID
+ * @param string $plaintext_pass Optional. The user's plaintext password
+ *
+ * @package Swepstakes
+ * @since 0.1
+ *
+ */
+function sw_new_user_notification($user_id, $plaintext_pass = '') {
+	$user = new WP_User($user_id);
+
+	$user_login = stripslashes($user->user_login);
+	$user_email = stripslashes($user->user_email);
+
+	// The blogname option is escaped with esc_html on the way into the database in sanitize_option
+	// we want to reverse this for the plain text arena of emails.
+	$blogname = wp_specialchars_decode(get_option('blogname'), ENT_QUOTES);
+
+	$message  = sprintf(__('New user registration on your site %s:'), $blogname) . "\r\n\r\n";
+	$message .= sprintf(__('Username: %s'), $user_login) . "\r\n\r\n";
+	$message .= sprintf(__('E-mail: %s'), $user_email) . "\r\n";
+
+	@wp_mail(get_option('admin_email'), sprintf(__('[%s] New User Registration'), $blogname), $message);
+
+	if ( empty($plaintext_pass) )
+		return;
+
+	$message  = sprintf(__('Username: %s'), $user_login) . "\r\n";
+	$message .= sprintf(__('Password: %s'), $plaintext_pass) . "\r\n";
+	$message .= get_permalink(20) . "#login" . "\r\n";
+
+	wp_mail($user_email, sprintf(__('[%s] Your username and password'), $blogname), $message);
+}
+
+
+
+
+/**
+ * register user as participant in a promo
+ *
+ * @param $promo_id int id of promo
+ * @param $user_id int id of user
+ * @param @code_ string promo code
+ *
+ * @package Swepstakes
+ * @since 0.1
+ *
+**/
 function sw_promo_register( $promo_id = false, $user_id = false, $code_ = '' ) {
 	global $sw_processed_fields;
 	
@@ -1183,15 +1460,23 @@ function sw_promo_register( $promo_id = false, $user_id = false, $code_ = '' ) {
 		
 		sw_add_message(__('Congratulations you have registered for this promo', 'sw'));
 	}
-	
-	$sw_processed_fields = array();
 }
 
 
+
+/**
+ * validates form field
+ *
+ * @param $field string name of request field
+ *
+ * @package Swepstakes
+ * @since 0.1
+ *
+**/
 function sw_validate_field($field) {
 	global $sw_processed_fields;
 	
-	$form_field = trim($_POST["sw-form-$field"]);
+	$form_field = isset($_POST["sw-form-$field"]) ? trim($_POST["sw-form-$field"]) : '';
 			
 	if ( !isset($form_field) ) {
 		sw_add_error( __('Sorry, some error happened, reload the page and try again.', 'sw') );
@@ -1205,6 +1490,14 @@ function sw_validate_field($field) {
 	$form = wp_cache_get('promo_form');
 	
 	switch ($field) {
+		
+		// user_email
+		case 'terms':
+			
+			if ( $form_field !== 'true' ) 
+				sw_add_error( __('You must accept the terms for proceed', 'sw'), 'terms' );
+			
+		break;
 		
 		// promo code
 		case 'promo_code':
@@ -1230,24 +1523,47 @@ function sw_validate_field($field) {
 		// user_email
 		case 'user_email':
 			
-			if ( !is_email($form_field) ) 
-				sw_add_error( __('Invalid email', 'sw'), 'user_email' );
-		
-		break;
+			if ( !is_email($form_field) ) {
+				sw_add_error( sprintf(__('Invalid %s', 'sw'), sw_get_field_name($field)), $field );
+			}
+			
+			break;
 		
 		// default field
 		default:
 		
 			if ( strlen($form_field) < 3 ) {
-				$field_name = (isset($form['fields'][$field])) ? __($form['fields'][$field]) : $field;
-				sw_add_error( sprintf(__('Invalid %s', 'sw'), $field_name), $field );
+				sw_add_error( sprintf(__('Invalid %s', 'sw'), sw_get_field_name($field)), $field );
 			}
 			
 			break;
-	}
-	
+	}	
 }
 
+
+
+function sw_get_field_name($field) {
+	
+	$wp_default_fields = array(
+		'first_name' => 'First Name',
+		'last_name' => 'Last Name',
+		'description' => 'Biographical Info',
+		'user_pass' => 'Password',
+		'user_url' => 'Website',
+		'aim' => 'Aim',
+		'yim' => 'Yahoo IM',
+		'jabber' => 'Jabber / Google Talk'
+	);
+	$form = wp_cache_get('promo_form');
+	
+	if ( isset($form['fields']) && !empty($form['fields']) )
+		$wp_default_fields = wp_parse_args($wp_default_fields, $form['fields']);
+	
+	if ( isset($wp_default_fields[$field]) )
+		return __($wp_default_fields[$field]);
+	
+	return $field;
+}
 
 
 
@@ -1256,7 +1572,6 @@ function sw_has_errors() {
 	
 	return (!empty($sw_errors));
 }
-
 function sw_reset_errors() {
 	global $sw_errors;
 	
@@ -1298,6 +1613,27 @@ function sw_add_message($message = false, $ref = 'general') {
 	
 	$sw_messages[$ref] = $message;
 }
+function sw_get_responses() {
+	if ( isset($_GET['sw_message']) && !empty($_GET['sw_message']) ) {
+		
+		switch ($_GET['sw_message']) {
+			
+			// success
+			case 1:
+				
+				if ( isset($_GET['sw_code']) && !empty($_GET['sw_code']) ) 
+					sw_add_message(sprintf(__('Congratulations you have registered on this promo with this code: <code>%s</code>', 'sw'), $_GET['sw_code']));
+				else
+					sw_add_message(__('Congratulations you have registered for this promo', 'sw'));
+				break;
+			
+			default:
+				# code...
+				break;
+		}
+		
+	}
+}
 function sw_print_messages() {
 	
 	if (!sw_has_messages()) return;
@@ -1312,7 +1648,13 @@ function sw_print_messages() {
 
 
 
-
+/**
+ * show promo register form
+ *
+ * @package Swepstakes
+ * @since 0.1
+ *
+**/
 function sw_user_did_participate($user_id = false) {
 	
 	$promo_users = wp_cache_get('promo_user');
@@ -1329,83 +1671,6 @@ function sw_user_did_participate($user_id = false) {
 
 
 /**
- * show promo register form
- *
- * @package Swepstakes
- * @since 0.1
- *
-**/
-function sw_promo_form() {
-	global $post;
-	
-	if (!isset($post)) return;
-	
-	$form = wp_cache_get('promo_form');
-	$code = wp_cache_get('promo_code');
-	
-	// process login form
-	sw_process_register();
-	
-	printf(__('<h2 class="%s">To participate in this promo, please choose</h2>', 'sw'), apply_filters('sw_header_class', 'page-title'));
-	
-	do_action('sw-before-form');
-	
-	// switcher navigation
-	?><nav id="promo-form-selector">
-		<a id="promo-form-selector-register" href="#register" class="<?php echo apply_filters('sw_selector_class', '') ?>"><?php _e('Register') ?></a>
-		<a id="promo-form-selector-login" href="#login" class="<?php echo apply_filters('sw_selector_class', '') ?>"><?php _e('Login') ?></a>
-	</nav><?php
-	
-	// register form
-	?><form id="promo-form" action="<?php echo get_permalink($post->ID) ?>#register" method="post" class="<?php echo apply_filters("promo_form_class", "sw-form register"); ?>" style="display: none"><?php
-	
-	wp_nonce_field('promo-form-nonce', 'sw-register-form');
-	
-	$index = 0;
-	foreach ($form['fields'] as $field => $name) {
-		$index ++;
-		echo apply_filters('promo_form_field', '', $field, $name, $index);
-	}
-	$index ++;
-	echo apply_filters('promo_form_submit', '', $index);
-	
-	if (isset($form['terms']) && !empty($form['terms']) && $terms_page = get_page($form['terms']) ) {
-		$index ++;
-		echo apply_filters('promo_form_terms', '', $terms_page, $index);
-	}
-	
-	?></form><?php
-	
-	// login form
-    ?><form id="promo-form-login" action="<?php echo get_permalink($post->ID) ?>#login" method="post" class="<?php echo apply_filters("promo_form_class", "sw-form login"); ?>" style="display: none"><?php
-	wp_nonce_field('promo-form-nonce', 'sw-login-form');
-	
-	$index = 1;
-	echo apply_filters('promo_form_field', '', 'user_email', 'Email', $index);
-	
-	$index++;
-	echo apply_filters('promo_form_field', '', 'user_pass', 'Password', $index);
-	
-	if ( isset($code['enabled']) && $code['enabled'] === 'true' ) {
-		$index++;
-		echo apply_filters('promo_form_field', '', 'promo_code', 'Promo Code', $index);
-	}
-	
-	$index++;
-	echo apply_filters('promo_form_submit', '', $index);
-	
-	if (isset($form['terms']) && !empty($form['terms']) && $terms_page = get_page($form['terms']) ) {
-		$index++;
-		echo apply_filters('promo_form_terms', '', $terms_page, $index);
-	}
-	
-	?></form><?php 
-	
-}
-
-
-
-/**
  * form filter: show term field
  *
  * @package Swepstakes
@@ -1415,11 +1680,11 @@ function sw_promo_form() {
 function sw_form_terms($output, $terms, $index) {
 	global $sw_processed_fields;
 	
-	$processed_field = (isset($_POST['promo-form-terms'])) ? $_POST['promo-form-terms'] : '';
+	$processed_field = (isset($_POST['sw-form-terms'])) ? $_POST['sw-form-terms'] : '';
 	
 	$output = "<div class=\"". apply_filters('promo_form_terms_class', 'sw-form-field field-terms', $index) ."\">" .PHP_EOL;
-	$output .= "<input type=\"checkbox\" name=\"promo-form-terms\" class=\"checkbox promo-form-terms\" value=\"true\"" .checked($processed_field, 'true', false). ">";
-	$output .= "<label for=\"pn-form-terms\" class=\"checkbox\"> " .__('I accept the', 'sw'). " <a href=\". get_permalink($terms->ID) .\" target=\"_blank\">" . apply_filters('the_title', $terms->post_title ) . "</a>.</label>" . PHP_EOL;
+	$output .= "<input type=\"checkbox\" name=\"sw-form-terms\" id=\"sw-form-terms\" class=\"checkbox sw-form-terms\" value=\"true\"" .checked($processed_field, 'true', false). ">";
+	$output .= "<label for=\"sw-form-terms\" class=\"checkbox\"> " .__('I accept the', 'sw'). " <a href=\". get_permalink($terms->ID) .\" target=\"_blank\">" . apply_filters('the_title', $terms->post_title ) . "</a>.</label>" . PHP_EOL;
 	$output .= "</div>" .PHP_EOL;
 	
 	return $output;
@@ -1461,7 +1726,7 @@ function sw_form_field($output, $field, $name, $index) {
 	
 	$output = "<div class=\"". apply_filters('promo_form_field_class', 'sw-form-field', $index) ."\">" .PHP_EOL;
 	$output .= "<label for=\"sw-form-$field\">".__($name)."</label>" .PHP_EOL;
-	$output .= "<input type=\"text\" name=\"sw-form-$field\" id=\"sw-form-$field\" class=\"" . apply_filters('promo_form_input_class', 'text') . "\" value=\"$processed_field\" tabindex=\"{$index}\" />" . PHP_EOL;
+	$output .= "<input type=\"text\" name=\"sw-form-$field\" id=\"sw-form-$field\" class=\"" . apply_filters('promo_form_input_class', "text $field") . "\" value=\"$processed_field\" tabindex=\"{$index}\" />" . PHP_EOL;
 	$output .= "</div>" .PHP_EOL;
 	
 	return $output;
@@ -1470,7 +1735,7 @@ function sw_form_field($output, $field, $name, $index) {
 
 
 /**
- * form filter: show password field
+ * form filter: show password field #################### validate password and strengh calculator
  *
  * @package Swepstakes
  * @since 0.1
@@ -1487,19 +1752,6 @@ function sw_form_field_password($output, $field, $name, $index) {
 		$output .= "<label for=\"sw-form-$field\">".__($name)."</label>" .PHP_EOL;
 		$output .= "<input type=\"password\" name=\"sw-form-$field\" id=\"sw-form-$field\" class=\"" . apply_filters('promo_form_input_class', 'text') . "\" value=\"$processed_field\" tabindex=\"$index\" />" . PHP_EOL;
 		$output .= "</div>" .PHP_EOL;
-		
-		
-		/*
-		$output = "<div class=\"". apply_filters('promo_form_field_class', 'sw-form-field', $index) ."\">" .PHP_EOL;
-		$output .= "<label for=\"sw-form-{$field}\">".__('Password')."</label>" .PHP_EOL;
-		$output .= "<input type=\"password\" name=\"sw-form-pass1\" id=\"sw-form-pass1\" class=\"" . apply_filters('promo_form_input_class', 'text') . "\" value=\"{$sw_processed_fields}\" tabindex=\"{$index}\" />" . PHP_EOL;
-		$output .= "</div>" .PHP_EOL;
-
-		$output .= "<div class=\"". apply_filters('promo_form_field_class', 'sw-form-field', $index) ."\">" .PHP_EOL;
-		$output .= "<label for=\"sw-form-{$field}\">".__('Repeat Password')."</label>" .PHP_EOL;
-		$output .= "<input type=\"password\" name=\"sw-form-pass2\" id=\"sw-form-pass2\" class=\"" . apply_filters('promo_form_input_class', 'text') . "\" value=\"{$sw_processed_fields}\" tabindex=\"{$index}\" />" . PHP_EOL;
-		$output .= "</div>" .PHP_EOL;
-		*/
 	
 	}
 	

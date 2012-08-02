@@ -54,7 +54,6 @@ jQuery(document).ready(function($) {
 	// _______________________________________________________
 	$('#promo-code-enabled').bind('change', function(_event) {
 		var $promo_input = $('#promo-form-list').find('input[value="Promo Code"]');
-		_debug($promo_input);
 		if ($(this).is(':checked')) {
 			$('#promo-code-table').show();
 			if ($promo_input.length == 0)
@@ -112,28 +111,53 @@ jQuery(document).ready(function($) {
 	// _______________________________________________________
 	
 	var select_winner = $('#promo-select-winner'),
+		delete_winner = $('#promo-delete-winners'),
 		user_list = $('#promo-user-list'),
 		winner_num = $('#promo-winner-num').val(),
+		active_buttons = function(active) {
+			var disabled = (active) ? false : true;
+			var a = (active) ? 1 : 0.5 ;
+			select_winner.prop('disabled', disabled).fadeTo(0, a);
+			delete_winner.prop('disabled', disabled).fadeTo(0, a);
+		},
 		promo_winner_response = function(response) {
 			if (response.status) $('#promo-winner-result').html(response.content);
-			select_winner.prop('disabled', false);
-	};
-	
-	select_winner.bind('click', function(_event){
-		_event.preventDefault();
-		
-		if ($(this).prop('disabled')) return;
-		
-		var package = {
-				'action' : 'set_promo_winner',
-				'nonce' : $('#promo-winner-nonce').val(),
-				'post_id' : $('#post_ID').val()
-			};
+			if (response.status) $('#promo-winner-result').find(' > *').hide().fadeIn('slow');
+			active_buttons(true);
+		},
+		promo_process_winner = function(_event) {
+			_event.preventDefault();
 			
-		$.post(ajaxurl, package, promo_winner_response);
-		
-		$(this).prop('disabled', true);
-	});
-	
+			if ($(this).prop('disabled')) {
+				_debug('is disabled');
+				return;
+			}
+			
+			var _action = false;
+			
+			switch (_event.target.id) {
+				case 'promo-select-winner':
+				_action = 'set_promo_winner';
+					break;
+				case 'promo-delete-winners':
+				_action = 'del_promo_winner';
+					break;
+			}
+			if (!_action) return;
+			
+			_debug(_action);
+			
+			var package = {
+					'action' : _action,
+					'nonce' : $('#promo-winner-nonce').val(),
+					'post_id' : $('#post_ID').val()
+				};
+			$.post(ajaxurl, package, promo_winner_response);
+			
+			active_buttons();
+		};
+
+	select_winner.bind('click', promo_process_winner);
+	delete_winner.bind('click', promo_process_winner);
 	$('.form-list-container').sortable({ placeholder: 'ui-state-highlight'});
 });

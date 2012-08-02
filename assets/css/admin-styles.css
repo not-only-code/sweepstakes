@@ -17,14 +17,24 @@
 	padding: 5px;
 }
 
-.form-table.sw p.description {
+.form-table.sw .description {
 	font-style: normal;
 	color: #888;
 	margin-bottom: 0;
 	font-size: 1em !important;
 }
 
-#promo-code-table { display: none; }
+#promo-user-list {
+	max-height: 242px;
+	overflow: auto;
+}
+
+#promo-delete-winners { margin-right: 8px; }
+
+#promo-code-table { 
+	display: none;
+	margin-top: 0;
+}
 
 #promo-code-table.true { display: table; }
 
@@ -36,6 +46,11 @@ input[type="number"] {
 	border-radius: 3px;
 	border-width: 1px;
 	border-style: solid;
+}
+
+input[disabled="disabled"], input.disabled,
+input[readonly="readonly"], input.readonly {
+	color: #999;
 }
 
 .form-list-container {

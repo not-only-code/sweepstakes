@@ -55,6 +55,7 @@ jQuery(document).ready(function($) {
 			if (!hash) return;
 			
 			promo_form.hide();
+			promo_form_selector.find('> a').removeClass('active');
 			
 			switch(hash) {
 				case '#register':

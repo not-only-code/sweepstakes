@@ -24,3 +24,20 @@
 	color: #eaeaea;
 	background-color: #666;
 }
+
+.promo.response {
+	margin: 20px 0;
+}
+
+input[name="sw-form-user_login"],
+input.user_login {
+	text-transform: lowercase !important;
+}
+
+
+input[name="sw-form-promo_code"],
+input.promo_code {
+	font-family: Consolas, Monaco, monospace !important;
+}
+
+

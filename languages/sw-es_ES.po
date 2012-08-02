@@ -8,7 +8,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"PO-Revision-Date: 2012-07-22 07:57+0100\n"
+"PO-Revision-Date: 2012-08-02 17:28+0100\n"
 "Last-Translator: Carlos Sanz <carlos.sanz@gmail.com>\n"
 "Language-Team: Carlos Sanz Garcia <carlos.sanz@gmail.com>\n"
 
@@ -81,6 +81,10 @@ msgid "Creates a serial code for this sweepstake"
 msgstr "Crea una serie codificada para este sorteo"
 
 # sweepstakes.php
+msgid "<em>Currently there are participants, so these values <u>can not be changed</u></em>"
+msgstr "<em>Actualmente hay participantes, por tanto, estos valores <u>ya no se pueden modificar</u></em>"
+
+# sweepstakes.php
 msgid "code"
 msgstr "codigo"
 
@@ -101,8 +105,8 @@ msgid "end"
 msgstr "final"
 
 # sweepstakes.php
-msgid "For example: 1 - 100000"
-msgstr "Por ejemplo: 1 -1000000"
+msgid "For example: 1 - 1000"
+msgstr "Por ejemplo: 1 -1000"
 
 # sweepstakes.php
 msgid "10 digits will create: <code>nUFyPiFdB1</code>"
@@ -125,8 +129,8 @@ msgid "Or create a new one yourself"
 msgstr "O crea uno nuevo tu mismo"
 
 # sweepstakes.php
-msgid "Add and sort the fields you want display in the form, all fields will be displayed as text input"
-msgstr "Añade y ordena los campos que quieres mostrar en el formulario, todos los campos serán mostrados como inputs de texto"
+msgid "Add and sort the fields you want display in the register form, all fields will be displayed as text input"
+msgstr "Añade y ordena los campos que quieres mostrar en el formulario de registro, todos los campos serán mostrados como inputs de texto"
 
 # sweepstakes.php
 msgid "Terms page"
@@ -169,6 +173,10 @@ msgid "Random winner/s"
 msgstr "Ganador/es aleatorios"
 
 # sweepstakes.php
+msgid "Delete winner/s"
+msgstr "Eliminar ganador/es"
+
+# sweepstakes.php
 msgid "Participants"
 msgstr "Participantes"
 
@@ -187,4 +195,80 @@ msgstr "desactivado"
 # sweepstakes.php
 msgid "Number of winners"
 msgstr "Número de ganadores"
+
+# sweepstakes.php
+msgid "<h2 class'%s'>This sweepstakes is finished, and the winner/s is/are...</h2>"
+msgstr "<h2 class='%s'>Esta promoción ha concluido, y el/los gandor/es es/son...</h2>"
+
+# sweepstakes.php
+msgid "<p class='%s'>If you are one of the lucky ones and have not received any mail, please contact the administrator.</p>"
+msgstr "<p class='%s'>Si eres unos de los afortunados y no has recibido ningún correo electrónico, por favor contacta con el administrador.</p>"
+
+# sweepstakes.php
+msgid "<h2 class='%s'>Hello <u>%s</u>, to participate on this promo add your code below</h2>"
+msgstr "<h2 class='%s'>Hola <u>%s</u>, para participar en esta promoción introduce a continuación el código promocional</h2>"
+
+# sweepstakes.php
+msgid "<h2 class='%s'>Hello <u>%s</u>, you've participated in this promo</h2>"
+msgstr "<h2 class='%s'>Hola <u>%s</u>, ya estas participando en esta promoción</h2>"
+
+# sweepstakes.php
+msgid "<p class='%s'>Wait for the draw for testing whether you are one of the lucky</p>"
+msgstr "<p class='%s'>Espera a que concluya la promoción para comprobar si eres uno de los afortunados</p>"
+
+# sweepstakes.php
+msgid "<p class='%s'>Thank you!</p>"
+msgstr "<p class='%s'>Gracias!</p>"
+
+# sweepstakes.php
+msgid "<h2 class='%s'>Hello <u>%s</u>, to participate on this promo, click button below</h2>"
+msgstr "<h2 class='%s'>Hola <u>%s</u>, para participar en esta promoción, apreta el siguiente botón</h2>"
+
+# sweepstakes.php
+msgid "<h2 class='%s'>To participate in this promo, please choose</h2>"
+msgstr "<h2 class='%s'>Para participar en esta promoción, por favor elije</h2>"
+
+# sweepstakes.php
+msgid "There is no user with that email"
+msgstr "No existe ningún usuario con este email "
+
+# sweepstakes.php
+msgid "Incorrect password"
+msgstr "Contraseña incorrecta"
+
+# sweepstakes.php
+msgid "Sorry, some error happened, reload the page and try again."
+msgstr "Lo sentimos, algo ha ocurrido, recarga la página y prueba otra vez."
+
+# sweepstakes.php
+msgid "New user registration on your site %s:"
+msgstr "New user registration on your site %s:"
+
+# sweepstakes.php
+msgid "Congratulations you have registered on this promo with this code: <code>%s</code>"
+msgstr "Felicidades te has registrado en esta promoción con este código: <code>%s</code>"
+
+# sweepstakes.php
+msgid "Congratulations you have registered for this promo"
+msgstr "Felicidades te has registrado en esta promoción"
+
+# sweepstakes.php
+msgid "You must accept the terms for proceed"
+msgstr "Debes aceptar los términos para proceder"
+
+# sweepstakes.php
+msgid "You can not participate with this code, is alredy in use."
+msgstr "No puedes participar con este código, ya está en uso."
+
+# sweepstakes.php
+msgid "This code is invalid."
+msgstr "Este codigo es inválido."
+
+# sweepstakes.php
+msgid "Invalid %s"
+msgstr "Campo %s inválido"
+
+# sweepstakes.php
+msgid "I accept the"
+msgstr "Acepto los"
 
