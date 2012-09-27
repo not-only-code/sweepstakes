@@ -8,7 +8,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"PO-Revision-Date: 2012-09-27 17:02+0100\n"
+"PO-Revision-Date: 2012-09-27 17:08+0100\n"
 "Last-Translator: Carlos Sanz <carlos.sanz@gmail.com>\n"
 "Language-Team: Carlos Sanz Garcia <carlos.sanz@gmail.com>\n"
 
@@ -18,11 +18,11 @@ msgstr "Promociones"
 
 # sweepstakes.php
 msgid "Promo"
-msgstr "Promocion"
+msgstr "Promoció"
 
 # sweepstakes.php
 msgid "Add new promo"
-msgstr "Añadir nueva promoción"
+msgstr "Afegir promoció nova"
 
 # sweepstakes.php
 msgid "Edit"
@@ -30,63 +30,63 @@ msgstr "Editar"
 
 # sweepstakes.php
 msgid "Edit promo"
-msgstr "Editar promoción"
+msgstr "Editar promoció"
 
 # sweepstakes.php
 msgid "New promo"
-msgstr "Nueva promoción"
+msgstr "Nova promoció"
 
 # sweepstakes.php
 msgid "View promo"
-msgstr "Ver promoción"
+msgstr "Veure la promoció"
 
 # sweepstakes.php
 msgid "Search promos"
-msgstr "Buscar promociones"
+msgstr "Buscar promocions"
 
 # sweepstakes.php
 msgid "No promo found"
-msgstr "Ninguna promocion encontrada"
+msgstr "No s'ha trobat cap promoció"
 
 # sweepstakes.php
 msgid "No promos in trash"
-msgstr "No hay promociones en la papelera"
+msgstr "No hi ha promocions a la paperera"
 
 # sweepstakes.php
 msgid "Parent promo"
-msgstr "Promoción superior"
+msgstr "Promoció pare"
 
 # sweepstakes.php
 msgid "Specific content for promos"
-msgstr "Contenido específico para promociones y sorteos"
+msgstr "Contingut específic per promocions"
 
 # sweepstakes.php
 msgid "Promo code"
-msgstr "Código promocional"
+msgstr "Codi de la promoció"
 
 # sweepstakes.php
 msgid "Register form"
-msgstr "Formulario de registro"
+msgstr "Formulari de registre"
 
 # sweepstakes.php
 msgid "Participants / Winners"
-msgstr "Participantes / Ganadores"
+msgstr "Participants / guanyadors"
 
 # sweepstakes.php
 msgid "Activate promo codes series"
-msgstr "Activar serie de código promocional"
+msgstr "Activar serie de código Activar les series de codis promocionals"
 
 # sweepstakes.php
 msgid "Creates a serial code for this sweepstake"
-msgstr "Crea una serie codificada para este sorteo"
+msgstr "Crear una serie de codis per aquest sorteig"
 
 # sweepstakes.php
 msgid "<em>Currently there are participants, so these values <u>can not be changed</u></em>"
-msgstr "<em>Actualmente hay participantes, por tanto, estos valores <u>ya no se pueden modificar</u></em>"
+msgstr "<em>Hi ha participants actius, per tant aquests valors <u>no es poden canviar</u></em>"
 
 # sweepstakes.php
 msgid "code"
-msgstr "codigo"
+msgstr "codi"
 
 # sweepstakes.php
 msgid "PROMO2012"
@@ -94,183 +94,183 @@ msgstr "PROMO2012"
 
 # sweepstakes.php
 msgid "range"
-msgstr "rango"
+msgstr "gamma"
 
 # sweepstakes.php
 msgid "start"
-msgstr "inicio"
+msgstr "inici"
 
 # sweepstakes.php
 msgid "end"
-msgstr "final"
+msgstr "fi"
 
 # sweepstakes.php
 msgid "For example: 1 - 1000"
-msgstr "Por ejemplo: 1 -1000"
+msgstr "Per exemple: 1 - 1000"
 
 # sweepstakes.php
 msgid "10 digits will create: <code>nUFyPiFdB1</code>"
-msgstr "10 digitos generaría: <code>nUFyPiFdB1</code>"
+msgstr "10 digits crearan: <code>nUFyPiFdB1</code>"
 
 # sweepstakes.php
 msgid "Download serie"
-msgstr "Descargar serie"
+msgstr "Descarrega una serie"
 
 # sweepstakes.php
 msgid "Select witch fields to use in registration form:"
-msgstr "Selecciona qué campos usar en el formulario de registro"
+msgstr "Selecciona els camps a utilitzar en el formulari de registre:"
 
 # sweepstakes.php
 msgid "Add field"
-msgstr "Añadir campo"
+msgstr "Afegir un camp"
 
 # sweepstakes.php
 msgid "Or create a new one yourself"
-msgstr "O crea uno nuevo tu mismo"
+msgstr "O crear-ne un de nou"
 
 # sweepstakes.php
 msgid "Add and sort the fields you want display in the register form, all fields will be displayed as text input"
-msgstr "Añade y ordena los campos que quieres mostrar en el formulario de registro, todos los campos serán mostrados como inputs de texto"
+msgstr "Afegir i escollir els camps que es volen mostrar al formulari de registre, tots els camps es mostraran com entrades de texte"
 
 # sweepstakes.php
 msgid "Terms page"
-msgstr "Página de Terminos"
+msgstr "Pàgina amb condicions"
 
 # sweepstakes.php
 msgid "Without Terms page"
-msgstr "Sin página de Términos"
+msgstr "Pàgina sense condicions"
 
 # sweepstakes.php
 msgid "If you define a 'Terms' page the customer will be asked to accept it before submit the form."
-msgstr "Si defines una página de 'Términos' el usuario tendrá que aceptarlos antes de enviar el formulario."
+msgstr "Si es defineix una pàgina de \"condicions\" es demanarà al client que ho accepti abans de obrir el formulari."
 
 # sweepstakes.php
 msgid "For example, a draw could have 3 winners, with 3 different lots"
-msgstr "Por ejemplo, un sorteo podría tener 3 ganadores con 3 lotes diferentes"
+msgstr "Per exemple, un sorteig pot tenir 3 guanyadors, amb tres lots"
 
 # sweepstakes.php
 msgid "Users who have participated in the draw:"
-msgstr "Usuarios que han participado en el sorteo:"
+msgstr "Usuaris que han participat en el sorteig:"
 
 # sweepstakes.php
 msgid "no participants yet"
-msgstr "sin participantes de momento"
+msgstr "No hi ha participants"
 
 # sweepstakes.php
 msgid "Download participants"
-msgstr "Descargar participantes"
+msgstr "Descarregar participants"
 
 # sweepstakes.php
 msgid "Winners"
-msgstr "Ganadores"
+msgstr "Guanyadors"
 
 # sweepstakes.php
 msgid "no winner/s for now"
-msgstr "sin ganador/es por ahora"
+msgstr "Encara no hi ha guanyador/s"
 
 # sweepstakes.php
 msgid "Random winner/s"
-msgstr "Ganador/es aleatorios"
+msgstr "Guanyador/s aleatoris"
 
 # sweepstakes.php
 msgid "Delete winner/s"
-msgstr "Eliminar ganador/es"
+msgstr "Esborrar guanyador/s"
 
 # sweepstakes.php
 msgid "Participants"
-msgstr "Participantes"
+msgstr "Participants"
 
 # sweepstakes.php
 msgid "Winner/s"
-msgstr "Ganador/es"
+msgstr "Guanyador/s"
 
 # sweepstakes.php
 msgid "participants"
-msgstr "participantes"
+msgstr "participants"
 
 # sweepstakes.php
 msgid "disabled"
-msgstr "desactivado"
+msgstr "desconnectat"
 
 # sweepstakes.php
 msgid "Number of winners"
-msgstr "Número de ganadores"
+msgstr "Nombre de guanyadors"
 
 # sweepstakes.php
 msgid "<h2 class='%s'>This sweepstakes is finished, and the winner/s is/are...</h2>"
-msgstr "<h2 class='%s'>Esta promoción ha concluido, y el/los gandor/es es/son...</h2>"
+msgstr "<h2 class='%s'>Aquest sorteig s'ha acabat, i el guanyador és...</h2>"
 
 # sweepstakes.php
 msgid "<p class='%s'>If you are one of the lucky ones and have not received any mail, please contact the administrator.</p>"
-msgstr "<p class='%s'>Si eres unos de los afortunados y no has recibido ningún correo electrónico, por favor contacta con el administrador.</p>"
+msgstr "<p class='%s'>Si ets un dels afortunats i no has rebut cap e-mail, si us plau contacta amb l'administrador.</p>"
 
 # sweepstakes.php
 msgid "<h2 class='%s'>Hello <u>%s</u>, to participate on this promo add your code below</h2>"
-msgstr "<h2 class='%s'>Hola <u>%s</u>, para participar en esta promoción introduce a continuación el código promocional</h2>"
+msgstr "<h2 class='%s'>Hola <u>%s</u>, per participar en aquesta promoció, posa el teu codi aqui sota</h2>"
 
 # sweepstakes.php
 msgid "<h2 class='%s'>Hello <u>%s</u>, you've participated in this promo</h2>"
-msgstr "<h2 class='%s'>Hola <u>%s</u>, ya estas participando en esta promoción</h2>"
+msgstr "<h2 class='%s'>Hola <u>%s</u>, has participat a la promoció</h2>"
 
 # sweepstakes.php
 msgid "<p class='%s'>Wait for the draw for testing whether you are one of the lucky</p>"
-msgstr "<p class='%s'>Espera a que concluya la promoción para comprobar si eres uno de los afortunados</p>"
+msgstr "<p class='%s'>Espera el sorteig per comprovar si ets un dels afortunats</p>"
 
 # sweepstakes.php
 msgid "<p class='%s'>Thank you!</p>"
-msgstr "<p class='%s'>Gracias!</p>"
+msgstr "<p class='%s'>Gràcies!</p>"
 
 # sweepstakes.php
 msgid "<h2 class='%s'>Hello <u>%s</u>, to participate on this promo, click button below</h2>"
-msgstr "<h2 class='%s'>Hola <u>%s</u>, para participar en esta promoción, apreta el siguiente botón</h2>"
+msgstr "<h2 class='%s'>Hola <u>%s</u>, per participar en aquesta promoció, prem el botó de sota</h2>"
 
 # sweepstakes.php
 msgid "<h2 class='%s'>To participate in this promo, you must enter your details by filling out the <u>register form</u>. If you had already registered before, you can log in using the <u>login form</u>.</h2>"
-msgstr "<h2 class='%s'>Para participar en esta promoción, debes ingresar tus datos rellenando el <u>formulario de registro</u>. Si ya te habías registrado antes puedes acceder mediante el <u>formulario de acceso</u>.</h2>"
+msgstr "<h2 class='%s'>Per participar en aquesta promoció, has d'omplir el <u>formulario de registre</u>. Si ja t'has registrat prèviament pots accedir mitjançant el <u>formulari d'accés</u>.</h2>"
 
 # sweepstakes.php
 msgid "There is no user with that email"
-msgstr "No existe ningún usuario con este email "
+msgstr "No hi ha cap usuari amb aquest e-mail"
 
 # sweepstakes.php
 msgid "Incorrect password"
-msgstr "Contraseña incorrecta"
+msgstr "Clau de pas incorrecta"
 
 # sweepstakes.php
 msgid "Sorry, some error happened, reload the page and try again."
-msgstr "Lo sentimos, algo ha ocurrido, recarga la página y prueba otra vez."
+msgstr "Ho sentim, hi ha hagut un error, recarrega la pàgina i torna-ho a intentar."
 
 # sweepstakes.php
 msgid "New user registration on your site %s:"
-msgstr "New user registration on your site %s:"
+msgstr "Registre d'un nou usuari a la teva pàgina %s:"
 
 # sweepstakes.php
 msgid "Congratulations you have registered on this promo with this code: <code>%s</code>"
-msgstr "Felicidades te has registrado en esta promoción con este código: <code>%s</code>"
+msgstr "Felicitats, estàs inscrit en aquesta promoció amb aquest codi: <code>%s</code>"
 
 # sweepstakes.php
 msgid "Congratulations you have registered for this promo"
-msgstr "Felicidades te has registrado en esta promoción"
+msgstr "Felicitats, estàs inscrit en aquesta promoció"
 
 # sweepstakes.php
 msgid "You must accept the terms for proceed"
-msgstr "Debes aceptar los términos para proceder"
+msgstr "Has d'acceptar les condicions per continuar"
 
 # sweepstakes.php
 msgid "You can not participate with this code, is alredy in use."
-msgstr "No puedes participar con este código, ya está en uso."
+msgstr "No pots participar amb aquest codi, ja s'està utilitzant."
 
 # sweepstakes.php
 msgid "This code is invalid."
-msgstr "Este codigo es inválido."
+msgstr "Aquest codi no és vàlid."
 
 # sweepstakes.php
 msgid "Invalid %s"
-msgstr "Campo %s inválido"
+msgstr "Camp %s no vàlid "
 
 # sweepstakes.php
 msgid "I accept the"
-msgstr "Acepto los"
+msgstr "Accepto els"
 
 # sweepstakes.php
 msgid "Participate"
@@ -278,21 +278,21 @@ msgstr "Participar"
 
 # sweepstakes.php
 msgid "Close promo"
-msgstr "Cerrar promo"
+msgstr "Tancar promoció"
 
 # sweepstakes.php
 msgid "Congratulations %s"
-msgstr "Felicidades %s"
+msgstr "Felicitats %s"
 
 # sweepstakes.php
 msgid "You're one of the winners of the draw: %s"
-msgstr "Eres uno/a de los ganadores del sorteo: %s"
+msgstr "Ets un dels gunayadors del sorteig: %s"
 
 # sweepstakes.php
 msgid "Please contact us (%s), to collect the award"
-msgstr "Por favor, ponte en contacto con nosotros (%s), para recoger el premio."
+msgstr "Si us plau, contacta amb nosaltres (%s), per recollir el premi"
 
 # sweepstakes.php
 msgid "[%s] Congratulations"
-msgstr "[%s] Enorabuena"
+msgstr "[%s] Felicitats"
 

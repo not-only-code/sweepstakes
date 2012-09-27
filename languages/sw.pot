@@ -276,3 +276,27 @@ msgstr ""
 # sweepstakes.php
 msgid "I accept the"
 msgstr ""
+
+# sweepstakes.php
+msgid "Participate"
+msgstr ""
+
+# sweepstakes.php
+msgid "Close promo"
+msgstr ""
+
+# sweepstakes.php
+msgid "Congratulations %s"
+msgstr ""
+
+# sweepstakes.php
+msgid "You're one of the winners of the draw: %s"
+msgstr ""
+
+# sweepstakes.php
+msgid "Please contact us (%s), to collect the award"
+msgstr ""
+
+# sweepstakes.php
+msgid "[%s] Congratulations"
+msgstr ""
